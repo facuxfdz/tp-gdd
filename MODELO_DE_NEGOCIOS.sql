@@ -317,5 +317,50 @@ ADD FOREIGN KEY (codigo_postal) REFERENCES sqlnt.CODIGO_POSTAL(codigo_postal)
 ALTER TABLE sqlnt.DESCUENTO_MEDIO_PAGO_VENTA
 ADD FOREIGN KEY (medio_pago) REFERENCES sqlnt.MEDIO_PAGO_VENTA(id)
 
+/*---------------------SEQUENCE---------------------*/
 
+CREATE SEQUENCE sqlnt.contador_categorias
+    AS INT
+    START WITH 1
+    INCREMENT BY 1;
+GO
+
+CREATE SEQUENCE sqlnt.contador_productos
+    AS INT
+    START WITH 1
+    INCREMENT BY 1;
+GO
+
+/*---------------------INSERTS---------------------*/
+
+CREATE PROCEDURE sqlnt.insertar_categorias
+AS
+INSERT INTO sqlnt.CATEGORIA(id, detalle)
+SELECT NEXT VALUE FOR sqlnt.contador_categorias, PRODUCTO_CATEGORIA
+FROM gd_esquema.Maestra
+WHERE PRODUCTO_CATEGORIA IS NOT NULL
+GROUP BY PRODUCTO_CATEGORIA
+ORDER BY PRODUCTO_CATEGORIA
+GO
+
+CREATE PROCEDURE sqlnt.insertar_productos
+AS
+INSERT INTO sqlnt.PRODUCTO(id, detalle, categoria)
+SELECT NEXT VALUE FOR sqlnt.contador_productos,
+       PRODUCTO_MARCA,
+       CASE
+           WHEN PRODUCTO_CATEGORIA = 'Categoria 1' THEN 1
+           WHEN PRODUCTO_CATEGORIA = 'Categoria 2' THEN 2
+           ELSE 3
+           END AS PRODUCTO_CATEGORIA
+FROM gd_esquema.Maestra
+WHERE PRODUCTO_MARCA IS NOT NULL
+  AND PRODUCTO_CATEGORIA IS NOT NULL
+GROUP BY PRODUCTO_MARCA, PRODUCTO_CATEGORIA
+GO
+
+/*--------------------------------------------------*/
+
+EXEC sqlnt.insertar_categorias
+EXEC sqlnt.insertar_productos
 
