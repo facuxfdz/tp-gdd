@@ -38,7 +38,7 @@ CREATE TABLE sqlnt.VARIANTE
 CREATE TABLE sqlnt.TIPO_VARIANTE
   (
      id      INTEGER,
-     detalle NVARCHAR(255),
+     detalle NVARCHAR(50),
      PRIMARY KEY(id)
   )
 
@@ -323,11 +323,46 @@ CREATE SEQUENCE sqlnt.contador_categorias
     AS INT
     START WITH 1
     INCREMENT BY 1;
+GO
 
 CREATE SEQUENCE sqlnt.contador_productos
     AS INT
     START WITH 1
     INCREMENT BY 1;
+GO
+
+/*-- inicio ema ---*/
+CREATE SEQUENCE sqlnt.contador_tipo_variante
+    AS INT
+    START WITH 1
+    INCREMENT BY 1;
+GO
+
+CREATE SEQUENCE sqlnt.contador_tipo_descuento_venta
+    AS INT
+    START WITH 1
+    INCREMENT BY 1;
+GO
+
+CREATE SEQUENCE sqlnt.contador_medio_pago_venta
+    AS INT
+    START WITH 1
+    INCREMENT BY 1;
+GO
+
+CREATE SEQUENCE sqlnt.contador_medio_envio
+    AS INT
+    START WITH 1
+    INCREMENT BY 1;
+GO
+
+CREATE SEQUENCE sqlnt.contador_tipo_cupon
+    AS INT
+    START WITH 1
+    INCREMENT BY 1;
+GO
+
+/*-- fin ema ---*/
 
 /*---------------------INSERTS---------------------*/
 
@@ -337,7 +372,8 @@ INSERT INTO sqlnt.CATEGORIA(id, detalle)
 SELECT NEXT VALUE FOR sqlnt.contador_categorias, PRODUCTO_CATEGORIA
 FROM GD2C2022.gd_esquema.Maestra
 WHERE PRODUCTO_CATEGORIA IS NOT NULL
-GROUP BY PRODUCTO_CATEGORIA
+GROUP BY PRODUCTO_CATEGORIA;
+GO
 
 CREATE PROCEDURE sqlnt.insertar_productos
 AS
@@ -348,14 +384,70 @@ SELECT NEXT VALUE FOR sqlnt.contador_productos,
 FROM GD2C2022.gd_esquema.Maestra
 WHERE PRODUCTO_MARCA IS NOT NULL
   AND PRODUCTO_CATEGORIA IS NOT NULL
-GROUP BY PRODUCTO_MARCA, PRODUCTO_CATEGORIA
+GROUP BY PRODUCTO_MARCA, PRODUCTO_CATEGORIA;
+GO
 
+/*-------------------inicio ema-----------------*/
 
-/*--------------------------------------------------*/
+CREATE PROCEDURE sqlnt.insertar_tipo_variante
+AS
+INSERT INTO sqlnt.TIPO_VARIANTE(id, detalle)
+SELECT NEXT VALUE FOR sqlnt.contador_tipo_variante, PRODUCTO_TIPO_VARIANTE
+FROM GD2C2022.gd_esquema.Maestra
+WHERE PRODUCTO_TIPO_VARIANTE IS NOT NULL
+GROUP BY PRODUCTO_TIPO_VARIANTE;
+GO
 
-EXEC sqlnt.insertar_categorias
-EXEC sqlnt.insertar_productos
+CREATE PROCEDURE sqlnt.insertar_tipo_descuento_venta
+AS
+INSERT INTO sqlnt.TIPO_DESCUENTO_VENTA(id, concepto)
+SELECT NEXT VALUE FOR sqlnt.contador_tipo_descuento_venta, VENTA_DESCUENTO_CONCEPTO
+FROM GD2C2022.gd_esquema.Maestra
+WHERE VENTA_DESCUENTO_CONCEPTO IS NOT NULL
+GROUP BY VENTA_DESCUENTO_CONCEPTO;
+GO
 
+CREATE PROCEDURE sqlnt.insertar_medio_envio
+AS
+INSERT INTO sqlnt.MEDIO_ENVIO(id, descripcion)
+SELECT NEXT VALUE FOR sqlnt.contador_medio_envio, VENTA_MEDIO_ENVIO
+FROM GD2C2022.gd_esquema.Maestra
+WHERE VENTA_MEDIO_ENVIO IS NOT NULL
+GROUP BY VENTA_MEDIO_ENVIO;
+GO
 
+CREATE PROCEDURE sqlnt.insertar_medio_pago_venta
+AS
+INSERT INTO sqlnt.MEDIO_PAGO_VENTA (id, descripcion)
+SELECT NEXT VALUE FOR sqlnt.contador_medio_pago_venta, VENTA_MEDIO_PAGO
+FROM GD2C2022.gd_esquema.Maestra
+WHERE VENTA_MEDIO_PAGO IS NOT NULL
+GROUP BY VENTA_MEDIO_PAGO;
+GO
 
+CREATE PROCEDURE sqlnt.insertar_tipo_cupon
+AS
+INSERT INTO sqlnt.TIPO_CUPON (id, descripcion)
+SELECT NEXT VALUE FOR sqlnt.contador_tipo_cupon, VENTA_CUPON_TIPO
+FROM GD2C2022.gd_esquema.Maestra
+WHERE VENTA_CUPON_TIPO IS NOT NULL
+GROUP BY VENTA_CUPON_TIPO;
+GO
+/*-------------------fin ema-----------------*/
 
+/*-------------------inicio ema-----------------*/
+CREATE PROCEDURE sqlnt.Migracion
+AS
+    EXECUTE sqlnt.insertar_categorias;
+    EXECUTE sqlnt.insertar_productos;
+    EXECUTE sqlnt.insertar_tipo_variante;
+    EXECUTE sqlnt.insertar_tipo_descuento_venta;
+    EXECUTE sqlnt.insertar_medio_envio;
+    EXECUTE sqlnt.insertar_medio_pago_venta;
+    EXECUTE sqlnt.insertar_medio_pago_venta;
+    EXECUTE sqlnt.insertar_tipo_cupon;
+GO
+
+EXECUTE sqlnt.Migracion;
+
+/*-------------------fin ema-----------------*/
