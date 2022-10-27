@@ -353,9 +353,71 @@ GROUP BY PRODUCTO_MARCA, PRODUCTO_CATEGORIA
 
 /*--------------------------------------------------*/
 
+/*----------------------Facu section----------------------------*/
+
+CREATE SEQUENCE sqlnt.seq_canal_venta
+	AS INT
+	START WITH 1
+	INCREMENT BY 1
+	MINVALUE 1
+	MAXVALUE 2147483647;
+
+CREATE SEQUENCE sqlnt.seq_provincia
+	AS INT
+	START WITH 1
+	INCREMENT BY 1
+	MINVALUE 1
+	MAXVALUE 2147483647;
+
+CREATE SEQUENCE sqlnt.seq_medio_pago_compra
+	AS INT
+	START WITH 1
+	INCREMENT BY 1
+	MINVALUE 1
+	MAXVALUE 2147483647;
+
+
+CREATE PROCEDURE sqlnt.insertar_canales_vta
+AS
+	INSERT INTO sqlnt.CANAL_VENTA
+		(id,descripcion,costo_asociado)
+		SELECT
+			NEXT VALUE FOR sqlnt.seq_canal_venta,
+			m.VENTA_CANAL,
+			m.VENTA_CANAL_COSTO
+		FROM gd_esquema.Maestra m 
+		WHERE 
+			m.VENTA_CANAL IS NOT NULL AND 
+			m.VENTA_CANAL_COSTO IS NOT NULL
+		GROUP BY m.VENTA_CANAL,m.VENTA_CANAL_COSTO 
+
+CREATE PROCEDURE sqlnt.insertar_provincias
+AS
+	INSERT INTO sqlnt.PROVINCIA
+		(id,descripcion)
+		SELECT 
+			NEXT VALUE FOR sqlnt.seq_provincia,
+			CONCAT(m.CLIENTE_PROVINCIA,m.PROVEEDOR_PROVINCIA)
+		FROM gd_esquema.Maestra m
+		GROUP BY CONCAT(m.CLIENTE_PROVINCIA,m.PROVEEDOR_PROVINCIA)
+
+CREATE PROCEDURE sqlnt.insertar_medio_pago_compra
+AS 
+	INSERT INTO sqlnt.MEDIO_PAGO_COMPRA 
+	(id,descripcion)
+	SELECT
+		NEXT VALUE FOR sqlnt.seq_medio_pago_compra,
+		m.COMPRA_MEDIO_PAGO  
+	FROM gd_esquema.Maestra m 
+WHERE m.COMPRA_MEDIO_PAGO IS NOT NULL
+GROUP BY m.COMPRA_MEDIO_PAGO 
+
+/*----------------------Facu section----------------------------*/
+
+
 EXEC sqlnt.insertar_categorias
 EXEC sqlnt.insertar_productos
-
-
-
+EXEC sqlnt.insertar_canales_vta
+EXEC sqlnt.insertar_provincias
+EXEC sqlnt.insertar_medio_pago_compra
 
