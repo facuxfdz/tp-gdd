@@ -431,6 +431,20 @@ AS
 		m.VENTA_PRODUCTO_CANTIDAD,
 		m.VENTA_PRODUCTO_PRECIO 
 
+CREATE PROCEDURE sqlnt.insertar_codigo_postal
+AS 
+	INSERT INTO sqlnt.CODIGO_POSTAL 
+	(codigo_postal,provincia)
+	SELECT 
+		* 
+	FROM (
+		SELECT 
+			CONCAT(CLIENTE_CODIGO_POSTAL,PROVEEDOR_CODIGO_POSTAL) AS CODIGO_POSTAL,
+			(SELECT p.id  FROM sqlnt.PROVINCIA p WHERE p.descripcion = CONCAT(CLIENTE_PROVINCIA,PROVEEDOR_PROVINCIA)) AS PROVINCIA
+		FROM gd_esquema.Maestra 
+	) T
+	GROUP BY CODIGO_POSTAL,PROVINCIA
+	
 /*----------------------Facu section----------------------------*/
 
 
@@ -439,5 +453,5 @@ EXEC sqlnt.insertar_productos
 EXEC sqlnt.insertar_canales_vta
 EXEC sqlnt.insertar_provincias
 EXEC sqlnt.insertar_medio_pago_compra
-
+EXEC sqlnt.insertar_codigo_postal
 
