@@ -109,7 +109,7 @@ CREATE TABLE sqlnt.VENTA
      total            DECIMAL(18, 2),
      total_descuentos DECIMAL(18, 2),
      envio            INTEGER,
-     cliente          DECIMAL(18, 0),
+     cliente          INTEGER,
      canal_venta      INTEGER,
      medio_pago       INTEGER,
      PRIMARY KEY(nro_venta)
@@ -189,6 +189,7 @@ CREATE TABLE sqlnt.TIPO_DESCUENTO_COMPRA
 
 CREATE TABLE sqlnt.CLIENTE
   (
+  	 id 		   INTEGER,
      nombre        NVARCHAR(255),
      apellido      NVARCHAR(255),
      nro_documento DECIMAL(18, 0),
@@ -198,7 +199,7 @@ CREATE TABLE sqlnt.CLIENTE
      codigo_postal DECIMAL(18, 0),
      direccion     NVARCHAR(255),
      telefono      DECIMAL(18, 0),
-     PRIMARY KEY(nro_documento)
+     PRIMARY KEY(id)
   )
 
 CREATE TABLE sqlnt.CODIGO_POSTAL
@@ -258,7 +259,7 @@ ALTER TABLE sqlnt.VENTA
 ADD FOREIGN KEY (envio) REFERENCES sqlnt.ENVIO(id)
 
 ALTER TABLE sqlnt.VENTA 
-ADD FOREIGN KEY (cliente) REFERENCES sqlnt.CLIENTE(nro_documento)
+ADD FOREIGN KEY (cliente) REFERENCES sqlnt.CLIENTE(id)
 
 ALTER TABLE sqlnt.VENTA 
 ADD FOREIGN KEY (canal_venta) REFERENCES sqlnt.CANAL_VENTA(id)
@@ -376,6 +377,12 @@ CREATE SEQUENCE sqlnt.seq_medio_pago_compra
 	MINVALUE 1
 	MAXVALUE 2147483647;
 
+CREATE SEQUENCE sqlnt.seq_cliente
+	AS INT
+	START WITH 1
+	INCREMENT BY 1
+	MINVALUE 1
+	MAXVALUE 2147483647;
 
 CREATE PROCEDURE sqlnt.insertar_canales_vta
 AS
@@ -445,6 +452,57 @@ AS
 	) T
 	GROUP BY CODIGO_POSTAL,PROVINCIA
 	
+CREATE PROCEDURE sqlnt.insertar_cliente
+AS 
+	INSERT INTO sqlnt.CLIENTE 
+	(
+		id,
+		nombre,
+		apellido,
+		nro_documento,
+		fecha_nac,
+		mail,
+		localidad,
+		codigo_postal,
+		direccion,
+		telefono
+	)
+	SELECT 
+		NEXT VALUE FOR sqlnt.seq_cliente,
+		NOMBRE,
+		APELLIDO,
+		DNI,
+		FECHA_NAC,
+		MAIL,
+		LOCALIDAD,
+		CODIGO_POSTAL,
+		DIRECCION,
+		TELEFONO
+	FROM (
+	SELECT
+		m.CLIENTE_NOMBRE AS NOMBRE,
+		m.CLIENTE_APELLIDO AS APELLIDO,
+		m.CLIENTE_DNI AS DNI,
+		m.CLIENTE_FECHA_NAC AS FECHA_NAC,
+		m.CLIENTE_MAIL AS MAIL,
+		m.CLIENTE_LOCALIDAD AS LOCALIDAD,
+		(SELECT cp.codigo_postal FROM sqlnt.CODIGO_POSTAL cp WHERE cp.codigo_postal = m.CLIENTE_CODIGO_POSTAL) AS CODIGO_POSTAL,
+		m.CLIENTE_DIRECCION AS DIRECCION,
+		m.CLIENTE_TELEFONO AS TELEFONO
+	FROM gd_esquema.Maestra m
+	WHERE m.CLIENTE_DNI is not null
+	) T
+	GROUP BY
+		NOMBRE,
+		APELLIDO,
+		DNI,
+		FECHA_NAC,
+		MAIL,
+		LOCALIDAD,
+		CODIGO_POSTAL,
+		DIRECCION,
+		TELEFONO
+	
 /*----------------------Facu section----------------------------*/
 
 
@@ -454,4 +512,5 @@ EXEC sqlnt.insertar_canales_vta
 EXEC sqlnt.insertar_provincias
 EXEC sqlnt.insertar_medio_pago_compra
 EXEC sqlnt.insertar_codigo_postal
+EXEC sqlnt.insertar_cliente
 
