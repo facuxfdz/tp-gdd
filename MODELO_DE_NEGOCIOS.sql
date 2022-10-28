@@ -412,6 +412,25 @@ AS
 WHERE m.COMPRA_MEDIO_PAGO IS NOT NULL
 GROUP BY m.COMPRA_MEDIO_PAGO 
 
+CREATE PROCEDURE sqlnt.insertar_producto_variante_venta
+AS
+	INSERT INTO sqlnt.PRODUCTO_VARIANTE_VENTA
+	(venta,producto_variante,cantidad,precio)
+	SELECT 
+		m.VENTA_CODIGO,
+		m.PRODUCTO_VARIANTE_CODIGO,
+		m.VENTA_PRODUCTO_CANTIDAD,
+		m.VENTA_PRODUCTO_PRECIO 
+	FROM gd_esquema.Maestra m
+	WHERE 
+		m.VENTA_CODIGO IS NOT NULL
+		AND
+		m.PRODUCTO_VARIANTE_CODIGO IS NOT NULL
+	GROUP BY 	m.VENTA_CODIGO,
+		m.PRODUCTO_VARIANTE_CODIGO,
+		m.VENTA_PRODUCTO_CANTIDAD,
+		m.VENTA_PRODUCTO_PRECIO 
+
 /*----------------------Facu section----------------------------*/
 
 
@@ -420,4 +439,5 @@ EXEC sqlnt.insertar_productos
 EXEC sqlnt.insertar_canales_vta
 EXEC sqlnt.insertar_provincias
 EXEC sqlnt.insertar_medio_pago_compra
+
 
