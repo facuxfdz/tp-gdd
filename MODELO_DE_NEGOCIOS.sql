@@ -544,6 +544,7 @@ AS
 		CANAL,
 		MEDIO_PAGO
 	
+  
 /*----------------------Facu section----------------------------*/
 
 EXEC sqlnt.insertar_categorias
