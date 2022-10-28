@@ -61,13 +61,12 @@ CREATE TABLE sqlnt.CANAL_VENTA
 
 CREATE TABLE sqlnt.ENVIO
   (
-     id              INTEGER,
      venta			 DECIMAL(19,0),
      medio_envio     INTEGER,
      domicilio_envio NVARCHAR(255),
      codigo_postal   DECIMAL(18, 0),
      costo           DECIMAL(18, 2),
-     PRIMARY KEY(id)
+     PRIMARY KEY(venta)
   )
 
 CREATE TABLE sqlnt.PRODUCTO_VARIANTE_COMPRA
@@ -543,8 +542,42 @@ AS
 		CLIENTE,
 		CANAL,
 		MEDIO_PAGO
-	
-  
+
+CREATE PROCEDURE sqlnt.insertar_envio
+AS
+	INSERT INTO sqlnt.ENVIO 
+	(
+		venta,
+		medio_envio,
+		domicilio_envio,
+		codigo_postal,
+		costo
+	)
+	SELECT
+		VENTA,
+		MEDIO_ENVIO,
+		DIRECCION,
+		CODIGO_POSTAL,
+		COSTO_ENVIO
+	FROM 
+	(
+	SELECT
+		m.VENTA_CODIGO AS VENTA,
+		(SELECT me.id FROM sqlnt.MEDIO_ENVIO me WHERE me.descripcion = m.VENTA_MEDIO_ENVIO) AS MEDIO_ENVIO,
+		m.CLIENTE_DIRECCION AS DIRECCION,
+		(SELECT cp.codigo_postal FROM sqlnt.CODIGO_POSTAL cp WHERE cp.codigo_postal = m.CLIENTE_CODIGO_POSTAL) AS CODIGO_POSTAL,
+		m.VENTA_ENVIO_PRECIO AS COSTO_ENVIO
+	FROM gd_esquema.Maestra m 	
+	WHERE m.VENTA_MEDIO_ENVIO IS NOT NULL
+	) T
+	GROUP BY
+		VENTA,
+		MEDIO_ENVIO,
+		DIRECCION,
+		CODIGO_POSTAL,
+		COSTO_ENVIO
+		
+		
 /*----------------------Facu section----------------------------*/
 
 EXEC sqlnt.insertar_categorias
@@ -555,4 +588,5 @@ EXEC sqlnt.insertar_medio_pago_compra
 EXEC sqlnt.insertar_codigo_postal
 EXEC sqlnt.insertar_cliente
 EXEC sqlnt.insertar_venta
+EXEC sqlnt.insertar_envio
 
