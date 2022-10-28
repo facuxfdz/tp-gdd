@@ -62,6 +62,7 @@ CREATE TABLE sqlnt.CANAL_VENTA
 CREATE TABLE sqlnt.ENVIO
   (
      id              INTEGER,
+     venta			 DECIMAL(19,0),
      medio_envio     INTEGER,
      domicilio_envio NVARCHAR(255),
      codigo_postal   DECIMAL(18, 0),
@@ -108,7 +109,6 @@ CREATE TABLE sqlnt.VENTA
      fecha_venta      DATE,
      total            DECIMAL(18, 2),
      total_descuentos DECIMAL(18, 2),
-     envio            INTEGER,
      cliente          INTEGER,
      canal_venta      INTEGER,
      medio_pago       INTEGER,
@@ -256,9 +256,6 @@ ALTER TABLE sqlnt.PRODUCTO_VARIANTE_VENTA
 ADD FOREIGN KEY (producto_variante) REFERENCES sqlnt.PRODUCTO_VARIANTE(codigo)
 
 ALTER TABLE sqlnt.VENTA 
-ADD FOREIGN KEY (envio) REFERENCES sqlnt.ENVIO(id)
-
-ALTER TABLE sqlnt.VENTA 
 ADD FOREIGN KEY (cliente) REFERENCES sqlnt.CLIENTE(id)
 
 ALTER TABLE sqlnt.VENTA 
@@ -305,6 +302,9 @@ ADD FOREIGN KEY (medio_envio) REFERENCES sqlnt.MEDIO_ENVIO(id)
 
 ALTER TABLE sqlnt.ENVIO 
 ADD FOREIGN KEY (codigo_postal) REFERENCES sqlnt.CODIGO_POSTAL(codigo_postal)
+
+ALTER TABLE sqlnt.ENVIO 
+ADD FOREIGN KEY (venta) REFERENCES sqlnt.VENTA(nro_venta)
 
 ALTER TABLE sqlnt.CODIGO_POSTAL  
 ADD FOREIGN KEY (provincia) REFERENCES sqlnt.PROVINCIA(id)
@@ -502,9 +502,49 @@ AS
 		CODIGO_POSTAL,
 		DIRECCION,
 		TELEFONO
+
+CREATE PROCEDURE sqlnt.insertar_venta
+AS 
+	INSERT INTO sqlnt.VENTA 
+	(
+		nro_venta,
+		fecha_venta,
+		total,
+		total_descuentos,
+		cliente,
+		canal_venta,
+		medio_pago 
+	)
+	SELECT 
+		CODIGO,
+		FECHA,
+		TOTAL,
+		SUM(ISNULL(DESCUENTO_VENTA,0)) AS TOTAL_DESCUENTOS,
+		CLIENTE,
+		CANAL,
+		MEDIO_PAGO
+	FROM
+	(
+	SELECT 
+		VENTA_CODIGO AS CODIGO,
+		VENTA_FECHA AS FECHA,
+		VENTA_TOTAL AS TOTAL,
+		VENTA_DESCUENTO_IMPORTE AS DESCUENTO_VENTA,
+		(SELECT c.id FROM sqlnt.CLIENTE c WHERE c.nro_documento = CLIENTE_DNI AND c.mail = CLIENTE_MAIL) AS CLIENTE,
+		(SELECT cv.id FROM sqlnt.CANAL_VENTA cv WHERE cv.descripcion = VENTA_CANAL) AS CANAL,
+		(SELECT mpv.id FROM sqlnt.MEDIO_PAGO_VENTA mpv WHERE mpv.descripcion = VENTA_MEDIO_PAGO) AS MEDIO_PAGO
+	FROM gd_esquema.Maestra
+	) T
+	WHERE CODIGO IS NOT NULL
+	GROUP BY
+		CODIGO,
+		FECHA,
+		TOTAL,
+		CLIENTE,
+		CANAL,
+		MEDIO_PAGO
 	
 /*----------------------Facu section----------------------------*/
-
 
 EXEC sqlnt.insertar_categorias
 EXEC sqlnt.insertar_productos
@@ -513,4 +553,5 @@ EXEC sqlnt.insertar_provincias
 EXEC sqlnt.insertar_medio_pago_compra
 EXEC sqlnt.insertar_codigo_postal
 EXEC sqlnt.insertar_cliente
+EXEC sqlnt.insertar_venta
 
