@@ -620,6 +620,58 @@ AS
 	GROUP BY 
 		CUPON,
 		VENTA
+		
+CREATE PROCEDURE sqlnt.insertar_proveedores
+AS
+	INSERT INTO sqlnt.PROVEEDOR
+	(
+		prove_cuit,
+		prove_razon_social,
+		prove_domicilio,
+		prove_localidad,
+		prove_mail,
+		prove_codigo_postal 
+	)
+	SELECT *
+	FROM (
+		SELECT
+			m.PROVEEDOR_CUIT AS CUIT,
+			m.PROVEEDOR_RAZON_SOCIAL AS RAZON_SOCIAL,
+			m.PROVEEDOR_DOMICILIO AS DOMICILIO,
+			m.PROVEEDOR_LOCALIDAD AS LOCALIDAD,
+			m.PROVEEDOR_MAIL AS MAIL,
+			(SELECT cp.codigo_postal FROM sqlnt.CODIGO_POSTAL cp WHERE cp.codigo_postal = m.PROVEEDOR_CODIGO_POSTAL) AS CODIGO_POSTAL
+		FROM gd_esquema.Maestra m 
+		WHERE m.PROVEEDOR_CUIT IS NOT NULL
+	) T 
+	GROUP BY 
+		CUIT,
+		RAZON_SOCIAL,
+		DOMICILIO,
+		LOCALIDAD,
+		MAIL,
+		CODIGO_POSTAL
+		
+CREATE PROCEDURE sqlnt.insertar_compras
+AS
+	INSERT INTO sqlnt.COMPRA 
+	(nro_compra,fecha_compra,proveedor,compra_total,medio_pago)	
+	SELECT * FROM (	
+		SELECT
+			m.COMPRA_NUMERO AS NUMERO_COMPRA,
+			m.COMPRA_FECHA AS FECHA_COMPRA,
+			(SELECT p.prove_cuit FROM sqlnt.PROVEEDOR p WHERE p.prove_cuit = m.PROVEEDOR_CUIT) AS PROVEEDOR,
+			m.COMPRA_TOTAL AS TOTAL,
+			(SELECT mpc.id FROM sqlnt.MEDIO_PAGO_COMPRA mpc WHERE mpc.descripcion = m.COMPRA_MEDIO_PAGO) AS MEDIO_PAGO 
+		FROM gd_esquema.Maestra m 
+		WHERE m.COMPRA_NUMERO IS NOT NULL
+	) T
+	GROUP BY 
+		NUMERO_COMPRA,
+		FECHA_COMPRA,
+		PROVEEDOR,
+		TOTAL,
+		MEDIO_PAGO
 /*----------------------Facu section----------------------------*/
 
 EXEC sqlnt.insertar_categorias
@@ -633,3 +685,5 @@ EXEC sqlnt.insertar_venta
 EXEC sqlnt.insertar_envio
 EXEC sqlnt.insertar_cupon
 EXEC sqlnt.insertar_cupon_venta
+EXEC sqlnt.insertar_proveedores
+EXEC sqlnt.insertar_compras
