@@ -577,6 +577,33 @@ AS
 		CODIGO_POSTAL,
 		COSTO_ENVIO
 		
+CREATE PROCEDURE sqlnt.insertar_cupon
+AS
+	INSERT INTO sqlnt.CUPON 
+	(codigo,tipo_cupon,valor,fecha_desde,fecha_hasta)
+	SELECT 
+		CODIGO,
+		TIPO_CUPON,
+		VALOR,
+		FECHA_DESDE,
+		FECHA_HASTA
+	FROM
+	(
+	SELECT 
+		m.VENTA_CUPON_CODIGO AS CODIGO,
+		(SELECT tc.id  FROM sqlnt.TIPO_CUPON tc WHERE tc.descripcion = m.VENTA_CUPON_TIPO) AS TIPO_CUPON,
+		m.VENTA_CUPON_VALOR AS VALOR,
+		m.VENTA_CUPON_FECHA_DESDE AS FECHA_DESDE,
+		m.VENTA_CUPON_FECHA_HASTA AS FECHA_HASTA
+	FROM gd_esquema.Maestra m 
+	WHERE m.VENTA_CUPON_CODIGO IS NOT NULL
+	) T
+	GROUP BY 
+		CODIGO,
+		TIPO_CUPON,
+		VALOR,
+		FECHA_DESDE,
+		FECHA_HASTA
 		
 /*----------------------Facu section----------------------------*/
 
@@ -589,4 +616,5 @@ EXEC sqlnt.insertar_codigo_postal
 EXEC sqlnt.insertar_cliente
 EXEC sqlnt.insertar_venta
 EXEC sqlnt.insertar_envio
+EXEC sqlnt.insertar_cupon
 
