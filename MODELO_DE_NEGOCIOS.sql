@@ -97,9 +97,9 @@ CREATE TABLE sqlnt.TIPO_CUPON
 
 CREATE TABLE sqlnt.CUPON_VENTA
   (
-     cupon NVARCHAR(255),
-     venta DECIMAL(19, 0),
-     PRIMARY KEY(cupon)
+     cupon NVARCHAR(255) NOT NULL,
+     venta DECIMAL(19, 0) NOT NULL,
+     PRIMARY KEY(cupon,venta)
   )
 
 CREATE TABLE sqlnt.VENTA
@@ -604,7 +604,22 @@ AS
 		VALOR,
 		FECHA_DESDE,
 		FECHA_HASTA
-		
+
+CREATE PROCEDURE sqlnt.insertar_cupon_venta
+AS
+	INSERT INTO sqlnt.CUPON_VENTA 
+	(cupon,venta)
+	SELECT * FROM
+	(
+	SELECT 
+		(SELECT c.codigo FROM sqlnt.CUPON c WHERE c.codigo = m.VENTA_CUPON_CODIGO) AS CUPON,
+		(SELECT v.nro_venta FROM sqlnt.VENTA v WHERE v.nro_venta = m.VENTA_CODIGO) AS VENTA
+	FROM gd_esquema.Maestra m 
+	WHERE m.VENTA_CUPON_CODIGO IS NOT NULL
+	) T
+	GROUP BY 
+		CUPON,
+		VENTA
 /*----------------------Facu section----------------------------*/
 
 EXEC sqlnt.insertar_categorias
@@ -617,4 +632,4 @@ EXEC sqlnt.insertar_cliente
 EXEC sqlnt.insertar_venta
 EXEC sqlnt.insertar_envio
 EXEC sqlnt.insertar_cupon
-
+EXEC sqlnt.insertar_cupon_venta
