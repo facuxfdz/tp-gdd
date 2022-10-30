@@ -231,13 +231,15 @@ CREATE TABLE sqlnt.DISPONIBILIDAD_ENVIO
      localidad              INTEGER,
      medio_envio_disponible INTEGER,
      precio 				DECIMAL(18,2),
-     PRIMARY KEY(codigo_postal,medio_envio_disponible)
+     PRIMARY KEY(localidad,medio_envio_disponible)
   )
+  
 CREATE TABLE sqlnt.LOCALIDAD
 (
 	id				INTEGER,
 	descripcion		NVARCHAR(255),
-	codigo_postal	DECIMAL(18,0)
+	codigo_postal	DECIMAL(18,0),
+	PRIMARY KEY(id)
 )
 
 CREATE TABLE sqlnt.MEDIO_ENVIO
@@ -418,6 +420,13 @@ CREATE SEQUENCE sqlnt.seq_producto_marca
 	MAXVALUE 2147483647;
 
 CREATE SEQUENCE sqlnt.seq_variante
+	AS INT
+	START WITH 1
+	INCREMENT BY 1
+	MINVALUE 1
+	MAXVALUE 2147483647;
+
+CREATE SEQUENCE sqlnt.seq_localidad
 	AS INT
 	START WITH 1
 	INCREMENT BY 1
@@ -899,7 +908,38 @@ AS
 	WHERE MEDIO_PAGO IS NOT NULL
 	GROUP BY MEDIO_PAGO
 
+CREATE PROCEDURE sqlnt.insertar_localidad
+AS
+	INSERT INTO sqlnt.LOCALIDAD 
+	(id,descripcion,codigo_postal)
+	SELECT 
+		NEXT VALUE FOR sqlnt.seq_localidad,
+		DESCRIPCION,
+		CODIGO_POSTAL
+	FROM (
+		SELECT 
+			CONCAT(m.CLIENTE_LOCALIDAD,m.PROVEEDOR_LOCALIDAD) AS DESCRIPCION,
+			(SELECT cp.codigo_postal from sqlnt.CODIGO_POSTAL cp where cp.codigo_postal = m.CLIENTE_CODIGO_POSTAL) AS CODIGO_POSTAL
+		FROM gd_esquema.Maestra m 
+		WHERE m.CLIENTE_LOCALIDAD IS NOT NULL OR m.PROVEEDOR_LOCALIDAD IS NOT NULL
+	) T
+	GROUP BY DESCRIPCION,CODIGO_POSTAL
 
+	
+CREATE PROCEDURE sqlnt.insertar_disponibilidad_envio
+AS 
+	INSERT INTO sqlnt.DISPONIBILIDAD_ENVIO 
+	(localidad,medio_envio_disponible,precio)
+	SELECT * FROM (
+		SELECT 
+			(SELECT l2.id FROM sqlnt.LOCALIDAD l2 where l2.descripcion = m.CLIENTE_LOCALIDAD AND l2.codigo_postal = m.CLIENTE_CODIGO_POSTAL) AS LOCALIDAD,
+			(SELECT me.id FROM sqlnt.MEDIO_ENVIO me WHERE me.descripcion = m.VENTA_MEDIO_ENVIO) AS MEDIO_ENVIO,
+			m.VENTA_ENVIO_PRECIO AS PRECIO
+		FROM gd_esquema.Maestra m 
+		WHERE m.CLIENTE_LOCALIDAD IS NOT NULL AND m.VENTA_MEDIO_ENVIO is not null
+	) T
+	GROUP BY LOCALIDAD,MEDIO_ENVIO,PRECIO
+	
 /*----------------------Facu section----------------------------*/
 
 EXEC sqlnt.insertar_categorias
@@ -925,3 +965,6 @@ EXEC sqlnt.insertar_descuento_venta
 EXEC sqlnt.insertar_tipo_descuento_compra
 EXEC sqlnt.insertar_descuento_compra
 EXEC sqlnt.insertar_descuento_medio_pago_venta
+EXEC sqlnt.insertar_localidad
+EXEC sqlnt.insertar_disponibilidad_envio
+
