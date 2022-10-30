@@ -813,6 +813,29 @@ AS
 	WHERE m.PRODUCTO_VARIANTE_CODIGO IS NOT NULL AND m.VENTA_CODIGO IS NOT NULL
 	) T
 	GROUP BY VENTA,PRODUCTO_VARIANTE,PRECIO
+	
+	
+CREATE PROCEDURE sqlnt.insertar_producto_variante_compra
+AS
+	INSERT INTO sqlnt.PRODUCTO_VARIANTE_COMPRA 
+	(compra,producto_variante,cantidad_producto,precio_unitario)
+	SELECT
+		COMPRA,
+		PRODUCTO_VARIANTE,
+		SUM(CANTIDAD),
+		PRECIO
+	FROM 
+	(
+		SELECT
+			(SELECT c.nro_compra FROM sqlnt.COMPRA c WHERE c.nro_compra = m.COMPRA_NUMERO) AS COMPRA,
+			(SELECT pv.codigo FROM sqlnt.PRODUCTO_VARIANTE pv WHERE pv.codigo = m.PRODUCTO_VARIANTE_CODIGO) AS PRODUCTO_VARIANTE,
+			m.COMPRA_PRODUCTO_CANTIDAD AS CANTIDAD,
+			m.COMPRA_PRODUCTO_PRECIO AS PRECIO
+		FROM gd_esquema.Maestra m 
+		WHERE m.COMPRA_NUMERO IS NOT NULL AND m.PRODUCTO_VARIANTE_CODIGO IS NOT NULL
+	) T
+	GROUP BY COMPRA,PRODUCTO_VARIANTE,PRECIO
+	
 /*----------------------Facu section----------------------------*/
 
 EXEC sqlnt.insertar_categorias
@@ -833,3 +856,4 @@ EXEC sqlnt.insertar_compras
 EXEC sqlnt.insertar_variante
 EXEC sqlnt.insertar_producto_variante
 EXEC sqlnt.insertar_producto_variante_venta
+EXEC sqlnt.insertar_producto_variante_compra
