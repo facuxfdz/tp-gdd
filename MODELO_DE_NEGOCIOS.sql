@@ -836,6 +836,19 @@ AS
 	) T
 	GROUP BY COMPRA,PRODUCTO_VARIANTE,PRECIO
 	
+CREATE PROCEDURE sqlnt.insertar_descuento_venta
+AS
+	INSERT INTO sqlnt.DESCUENTO_VENTA 
+	(tipo_descuento,venta,importe_descuento)
+	SELECT * FROM (
+	SELECT
+		(SELECT tdv.id FROM sqlnt.TIPO_DESCUENTO_VENTA tdv WHERE tdv.concepto = m.VENTA_DESCUENTO_CONCEPTO) AS TIPO_DESCUENTO,
+		(SELECT v.nro_venta FROM sqlnt.VENTA v WHERE v.nro_venta = m.VENTA_CODIGO) AS VENTA,
+		m.VENTA_DESCUENTO_IMPORTE AS IMPORTE_DESCUENTO
+	FROM gd_esquema.Maestra m 
+	WHERE m.VENTA_DESCUENTO_CONCEPTO IS NOT NULL
+	) T
+	GROUP BY TIPO_DESCUENTO,VENTA,IMPORTE_DESCUENTO
 /*----------------------Facu section----------------------------*/
 
 EXEC sqlnt.insertar_categorias
@@ -857,3 +870,4 @@ EXEC sqlnt.insertar_variante
 EXEC sqlnt.insertar_producto_variante
 EXEC sqlnt.insertar_producto_variante_venta
 EXEC sqlnt.insertar_producto_variante_compra
+EXEC sqlnt.insertar_descuento_venta
