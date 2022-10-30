@@ -228,11 +228,17 @@ CREATE TABLE sqlnt.CODIGO_POSTAL
 
 CREATE TABLE sqlnt.DISPONIBILIDAD_ENVIO
   (
-     codigo_postal          DECIMAL(18, 0),
+     localidad              INTEGER,
      medio_envio_disponible INTEGER,
      precio 				DECIMAL(18,2),
      PRIMARY KEY(codigo_postal,medio_envio_disponible)
   )
+CREATE TABLE sqlnt.LOCALIDAD
+(
+	id				INTEGER,
+	descripcion		NVARCHAR(255),
+	codigo_postal	DECIMAL(18,0)
+)
 
 CREATE TABLE sqlnt.MEDIO_ENVIO
   (
@@ -333,11 +339,14 @@ ADD FOREIGN KEY (venta) REFERENCES sqlnt.VENTA(nro_venta)
 ALTER TABLE sqlnt.CODIGO_POSTAL  
 ADD FOREIGN KEY (provincia) REFERENCES sqlnt.PROVINCIA(id)
 
+ALTER TABLE sqlnt.LOCALIDAD
+ADD FOREIGN KEY (codigo_postal) REFERENCES sqlnt.CODIGO_POSTAL(codigo_postal)
+
 ALTER TABLE sqlnt.DISPONIBILIDAD_ENVIO
 ADD FOREIGN KEY (medio_envio_disponible) REFERENCES sqlnt.MEDIO_ENVIO(id)
 
 ALTER TABLE sqlnt.DISPONIBILIDAD_ENVIO 
-ADD FOREIGN KEY (codigo_postal) REFERENCES sqlnt.CODIGO_POSTAL(codigo_postal)
+ADD FOREIGN KEY (localidad) REFERENCES sqlnt.LOCALIDAD(id)
 
 ALTER TABLE sqlnt.DESCUENTO_MEDIO_PAGO_VENTA
 ADD FOREIGN KEY (medio_pago) REFERENCES sqlnt.MEDIO_PAGO_VENTA(id)
