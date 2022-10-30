@@ -873,6 +873,24 @@ AS
 	) T
 	GROUP BY TIPO_DESCUENTO,COMPRA, IMPORTE_DESCUENTO
 
+CREATE PROCEDURE sqlnt.insertar_descuento_medio_pago_venta
+AS
+	INSERT INTO sqlnt.DESCUENTO_MEDIO_PAGO_VENTA 
+	(medio_pago,importe_descuento)
+	SELECT 
+		MEDIO_PAGO,
+		MIN(IMPORTE_DESCUENTO)
+	FROM (
+		SELECT 
+			(SELECT mpv2.id FROM sqlnt.MEDIO_PAGO_VENTA mpv2 WHERE mpv2.descripcion = m.VENTA_DESCUENTO_CONCEPTO) AS MEDIO_PAGO,
+			m.VENTA_DESCUENTO_IMPORTE AS IMPORTE_DESCUENTO
+		FROM gd_esquema.Maestra m 
+		where m.VENTA_DESCUENTO_CONCEPTO is not null
+	) T 
+	WHERE MEDIO_PAGO IS NOT NULL
+	GROUP BY MEDIO_PAGO
+
+
 /*----------------------Facu section----------------------------*/
 
 EXEC sqlnt.insertar_categorias
@@ -897,3 +915,4 @@ EXEC sqlnt.insertar_producto_variante_compra
 EXEC sqlnt.insertar_descuento_venta
 EXEC sqlnt.insertar_tipo_descuento_compra
 EXEC sqlnt.insertar_descuento_compra
+EXEC sqlnt.insertar_descuento_medio_pago_venta
