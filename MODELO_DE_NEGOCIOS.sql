@@ -191,7 +191,7 @@ CREATE TABLE sqlnt.COMPRA
 
 CREATE TABLE sqlnt.DESCUENTO_COMPRA
   (
-     tipo_descuento INTEGER,
+     tipo_descuento DECIMAL(19,0),
      compra             DECIMAL(19, 0),
      importe_valor      DECIMAL(18, 2),
      PRIMARY KEY(tipo_descuento,compra)
@@ -199,7 +199,7 @@ CREATE TABLE sqlnt.DESCUENTO_COMPRA
 
 CREATE TABLE sqlnt.TIPO_DESCUENTO_COMPRA
   (
-     id       INTEGER,
+     id       DECIMAL(19,0)
      concepto NVARCHAR(255),
      PRIMARY KEY(id)
   )
@@ -849,6 +849,30 @@ AS
 	WHERE m.VENTA_DESCUENTO_CONCEPTO IS NOT NULL
 	) T
 	GROUP BY TIPO_DESCUENTO,VENTA,IMPORTE_DESCUENTO
+
+CREATE PROCEDURE sqlnt.insertar_tipo_descuento_compra
+AS
+	INSERT INTO sqlnt.TIPO_DESCUENTO_COMPRA 
+	(id,concepto)
+	SELECT m.DESCUENTO_COMPRA_CODIGO,'' FROM gd_esquema.Maestra m
+	WHERE m.DESCUENTO_COMPRA_CODIGO IS NOT NULL
+	GROUP BY
+		m.DESCUENTO_COMPRA_CODIGO 
+
+CREATE PROCEDURE sqlnt.insertar_descuento_compra
+AS
+	INSERT INTO sqlnt.DESCUENTO_COMPRA 
+	(tipo_descuento,compra,importe_valor)
+	SELECT * FROM (
+		SELECT 
+			(SELECT tdc.id FROM sqlnt.TIPO_DESCUENTO_COMPRA tdc WHERE tdc.id = m.DESCUENTO_COMPRA_CODIGO) AS TIPO_DESCUENTO,
+			(SELECT c.nro_compra FROM sqlnt.COMPRA c WHERE c.nro_compra = m.COMPRA_NUMERO) AS COMPRA,
+			m.DESCUENTO_COMPRA_VALOR AS IMPORTE_DESCUENTO
+		FROM gd_esquema.Maestra m 
+		WHERE m.DESCUENTO_COMPRA_CODIGO IS NOT NULL
+	) T
+	GROUP BY TIPO_DESCUENTO,COMPRA, IMPORTE_DESCUENTO
+
 /*----------------------Facu section----------------------------*/
 
 EXEC sqlnt.insertar_categorias
@@ -871,3 +895,5 @@ EXEC sqlnt.insertar_producto_variante
 EXEC sqlnt.insertar_producto_variante_venta
 EXEC sqlnt.insertar_producto_variante_compra
 EXEC sqlnt.insertar_descuento_venta
+EXEC sqlnt.insertar_tipo_descuento_compra
+EXEC sqlnt.insertar_descuento_compra
