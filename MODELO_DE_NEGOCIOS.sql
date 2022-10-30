@@ -12,16 +12,34 @@ CREATE TABLE sqlnt.CATEGORIA
 
 CREATE TABLE sqlnt.PRODUCTO
   (
-     id        INTEGER,
-     detalle   NVARCHAR(255),
+     codigo        nvarchar(50),
+     nombre		   nvarchar(50),
+     descripcion   nvarchar(50),
+     material      integer,
+     marca         integer,
      categoria INTEGER,
-     PRIMARY KEY(id)
+     PRIMARY KEY(codigo)
   )
+  
+CREATE TABLE sqlnt.MARCA
+(
+	id			integer,
+	detalle		nvarchar(255),
+	PRIMARY KEY(id)
+)
+
+CREATE TABLE sqlnt.MATERIAL
+(
+	id			integer,
+	detalle		nvarchar(255),
+	PRIMARY KEY(id)
+)
+
 
 CREATE TABLE sqlnt.PRODUCTO_VARIANTE
   (
      codigo          NVARCHAR(50),
-     producto        INTEGER,
+     producto        nvarchar(50),
      variante        INTEGER,
      precio_unitario DECIMAL(18, 2),
      PRIMARY KEY(codigo)
@@ -233,8 +251,15 @@ CREATE TABLE sqlnt.PROVINCIA
 ALTER TABLE sqlnt.PRODUCTO
 ADD FOREIGN KEY (categoria) REFERENCES sqlnt.CATEGORIA(id)
 
+ALTER TABLE sqlnt.PRODUCTO
+ADD FOREIGN KEY (material) REFERENCES sqlnt.MATERIAL(id)
+
+ALTER TABLE sqlnt.PRODUCTO
+ADD FOREIGN KEY (marca) REFERENCES sqlnt.MARCA(id)
+
+
 ALTER TABLE sqlnt.PRODUCTO_VARIANTE 
-ADD FOREIGN KEY (producto) REFERENCES sqlnt.PRODUCTO(id)
+ADD FOREIGN KEY (producto) REFERENCES sqlnt.PRODUCTO(codigo)
 
 ALTER TABLE sqlnt.PRODUCTO_VARIANTE 
 ADD FOREIGN KEY (variante) REFERENCES sqlnt.VARIANTE(id)
@@ -324,10 +349,6 @@ CREATE SEQUENCE sqlnt.contador_categorias
     START WITH 1
     INCREMENT BY 1;
 
-CREATE SEQUENCE sqlnt.contador_productos
-    AS INT
-    START WITH 1
-    INCREMENT BY 1;
 
 /*---------------------INSERTS---------------------*/
 
@@ -338,17 +359,6 @@ SELECT NEXT VALUE FOR sqlnt.contador_categorias, PRODUCTO_CATEGORIA
 FROM GD2C2022.gd_esquema.Maestra
 WHERE PRODUCTO_CATEGORIA IS NOT NULL
 GROUP BY PRODUCTO_CATEGORIA
-
-CREATE PROCEDURE sqlnt.insertar_productos
-AS
-INSERT INTO sqlnt.PRODUCTO(id, detalle, categoria)
-SELECT NEXT VALUE FOR sqlnt.contador_productos,
-       PRODUCTO_MARCA,
-       (SELECT id FROM sqlnt.CATEGORIA c WHERE c.detalle = PRODUCTO_CATEGORIA)
-FROM GD2C2022.gd_esquema.Maestra
-WHERE PRODUCTO_MARCA IS NOT NULL
-  AND PRODUCTO_CATEGORIA IS NOT NULL
-GROUP BY PRODUCTO_MARCA, PRODUCTO_CATEGORIA
 
 
 /*--------------------------------------------------*/
@@ -377,6 +387,21 @@ CREATE SEQUENCE sqlnt.seq_medio_pago_compra
 	MAXVALUE 2147483647;
 
 CREATE SEQUENCE sqlnt.seq_cliente
+	AS INT
+	START WITH 1
+	INCREMENT BY 1
+	MINVALUE 1
+	MAXVALUE 2147483647;
+
+
+CREATE SEQUENCE sqlnt.seq_producto_material
+	AS INT
+	START WITH 1
+	INCREMENT BY 1
+	MINVALUE 1
+	MAXVALUE 2147483647;
+
+CREATE SEQUENCE sqlnt.seq_producto_marca
 	AS INT
 	START WITH 1
 	INCREMENT BY 1
@@ -672,9 +697,58 @@ AS
 		PROVEEDOR,
 		TOTAL,
 		MEDIO_PAGO
+		
+CREATE PROCEDURE sqlnt.insertar_materiales
+AS
+	INSERT INTO sqlnt.MATERIAL 
+	(id,detalle)
+	SELECT 
+		NEXT VALUE FOR sqlnt.seq_producto_material,
+		m.PRODUCTO_MATERIAL  
+	FROM gd_esquema.Maestra m
+	WHERE m.PRODUCTO_MATERIAL IS NOT NULL
+	GROUP BY m.PRODUCTO_MATERIAL 
+
+CREATE PROCEDURE sqlnt.insertar_marcas
+AS
+	INSERT INTO sqlnt.MARCA 
+	(id,detalle)
+	SELECT 
+		NEXT VALUE FOR sqlnt.seq_producto_marca,
+		m.PRODUCTO_MARCA
+	FROM gd_esquema.Maestra m
+	WHERE m.PRODUCTO_MARCA IS NOT NULL
+	GROUP BY m.PRODUCTO_MARCA 
+	
+CREATE PROCEDURE sqlnt.insertar_productos
+AS 
+INSERT INTO sqlnt.PRODUCTO 
+(codigo,nombre,descripcion,material,marca,categoria)
+SELECT * FROM
+(	
+	SELECT
+		m.PRODUCTO_CODIGO AS CODIGO,
+		m.PRODUCTO_NOMBRE AS NOMBRE,
+		m.PRODUCTO_DESCRIPCION AS DESCRIPCION,
+		(SELECT ma.id FROM sqlnt.MATERIAL ma WHERE ma.detalle = m.PRODUCTO_MATERIAL) AS MATERIAL,
+		(SELECT m2.id  FROM sqlnt.MARCA m2 WHERE m2.detalle = m.PRODUCTO_MARCA) AS MARCA,
+		(SELECT c.id  FROM sqlnt.CATEGORIA c WHERE c.detalle = m.PRODUCTO_CATEGORIA) AS CATEGORIA 
+	FROM gd_esquema.Maestra m 
+	WHERE PRODUCTO_CODIGO is not null
+) T
+GROUP BY 
+	CODIGO,
+	NOMBRE,
+	DESCRIPCION,
+	MATERIAL,
+	MARCA,
+	CATEGORIA
+	
 /*----------------------Facu section----------------------------*/
 
 EXEC sqlnt.insertar_categorias
+EXEC sqlnt.insertar_materiales
+EXEC sqlnt.insertar_marcas
 EXEC sqlnt.insertar_productos
 EXEC sqlnt.insertar_canales_vta
 EXEC sqlnt.insertar_provincias
