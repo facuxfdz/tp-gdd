@@ -408,6 +408,13 @@ CREATE SEQUENCE sqlnt.seq_producto_marca
 	MINVALUE 1
 	MAXVALUE 2147483647;
 
+CREATE SEQUENCE sqlnt.seq_variante
+	AS INT
+	START WITH 1
+	INCREMENT BY 1
+	MINVALUE 1
+	MAXVALUE 2147483647;
+
 CREATE PROCEDURE sqlnt.insertar_canales_vta
 AS
 	INSERT INTO sqlnt.CANAL_VENTA
@@ -744,6 +751,27 @@ GROUP BY
 	MARCA,
 	CATEGORIA
 	
+CREATE PROCEDURE sqlnt.insertar_variante
+AS 
+	INSERT INTO sqlnt.VARIANTE 
+	(id,detalle,tipo_variante)
+	SELECT 
+		NEXT VALUE FOR sqlnt.seq_variante,
+		DETALLE,
+		TIPO_VARIANTE
+	FROM
+	(
+		SELECT 
+			m.PRODUCTO_VARIANTE AS DETALLE,
+			(SELECT tv.id FROM sqlnt.TIPO_VARIANTE tv WHERE tv.detalle = m.PRODUCTO_TIPO_VARIANTE) AS TIPO_VARIANTE 
+		FROM gd_esquema.Maestra m 
+		WHERE m.PRODUCTO_VARIANTE_CODIGO IS NOT NULL
+	) T
+	GROUP BY 
+		DETALLE,
+		TIPO_VARIANTE
+
+	
 /*----------------------Facu section----------------------------*/
 
 EXEC sqlnt.insertar_categorias
@@ -761,3 +789,4 @@ EXEC sqlnt.insertar_cupon
 EXEC sqlnt.insertar_cupon_venta
 EXEC sqlnt.insertar_proveedores
 EXEC sqlnt.insertar_compras
+EXEC sqlnt.insertar_variante
