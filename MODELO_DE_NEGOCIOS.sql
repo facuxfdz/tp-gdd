@@ -3,365 +3,471 @@ BEGIN
     EXEC ('CREATE SCHEMA [sqlnt] AUTHORIZATION [dbo]')
 END
 
-CREATE TABLE sqlnt.CATEGORIA
-  (
-     id      INTEGER,
-     detalle NVARCHAR(255),
-     PRIMARY KEY (id)
-  )
-
-CREATE TABLE sqlnt.PRODUCTO
-  (
-     codigo        nvarchar(50),
-     nombre		   nvarchar(50),
-     descripcion   nvarchar(50),
-     material      integer,
-     marca         integer,
-     categoria INTEGER,
-     PRIMARY KEY(codigo)
-  )
-  
-CREATE TABLE sqlnt.MARCA
-(
-	id			integer,
-	detalle		nvarchar(255),
-	PRIMARY KEY(id)
-)
-
-CREATE TABLE sqlnt.MATERIAL
-(
-	id			integer,
-	detalle		nvarchar(255),
-	PRIMARY KEY(id)
-)
-
-
-CREATE TABLE sqlnt.PRODUCTO_VARIANTE
-  (
-     codigo          NVARCHAR(50),
-     producto        nvarchar(50),
-     variante        INTEGER,
-     precio_unitario DECIMAL(18, 2),
-     PRIMARY KEY(codigo)
-  )
-
-CREATE TABLE sqlnt.VARIANTE
-  (
-     id            INTEGER,
-     tipo_variante INTEGER,
-     detalle       NVARCHAR(255),
-     PRIMARY KEY(id),
-  )
-
-CREATE TABLE sqlnt.TIPO_VARIANTE
-  (
-     id      INTEGER,
-     detalle NVARCHAR(255),
-     PRIMARY KEY(id)
-  )
-
-CREATE TABLE sqlnt.PRODUCTO_VARIANTE_VENTA
-  (
-     venta             DECIMAL(19, 0),
-     producto_variante NVARCHAR(50),
-     cantidad          DECIMAL(18, 0),
-     precio            DECIMAL(18, 2),
-     PRIMARY KEY(venta, producto_variante)
-  )
-
-CREATE TABLE sqlnt.CANAL_VENTA
-  (
-     id             INTEGER,
-     descripcion    VARCHAR(255),
-     costo_asociado DECIMAL(18, 2),
-     PRIMARY KEY(id)
-  )
-
-CREATE TABLE sqlnt.ENVIO
-  (
-     venta			 DECIMAL(19,0),
-     medio_envio     INTEGER,
-     domicilio_envio NVARCHAR(255),
-     codigo_postal   DECIMAL(18, 0),
-     costo           DECIMAL(18, 2),
-     PRIMARY KEY(venta)
-  )
-
-CREATE TABLE sqlnt.PRODUCTO_VARIANTE_COMPRA
-  (
-     compra            DECIMAL(19, 0),
-     producto_variante NVARCHAR(50),
-     cantidad_producto DECIMAL(18, 0),
-     precio_unitario   DECIMAL(18, 2),
-     PRIMARY KEY(compra, producto_variante)
-  )
-
-CREATE TABLE sqlnt.CUPON
-  (
-     codigo      NVARCHAR(255),
-     tipo_cupon  INTEGER,
-     valor       DECIMAL(18, 2),
-     fecha_desde DATE,
-     fecha_hasta DATE,
-     PRIMARY KEY(codigo)
-  )
-
-CREATE TABLE sqlnt.TIPO_CUPON
-  (
-     id          INTEGER,
-     descripcion NVARCHAR(50),
-     PRIMARY KEY(id)
-  )
-
-CREATE TABLE sqlnt.CUPON_VENTA
-  (
-     cupon NVARCHAR(255) NOT NULL,
-     venta DECIMAL(19, 0) NOT NULL,
-     PRIMARY KEY(cupon,venta)
-  )
-
-CREATE TABLE sqlnt.VENTA
-  (
-     nro_venta        DECIMAL(19, 0),
-     fecha_venta      DATE,
-     total            DECIMAL(18, 2),
-     total_descuentos DECIMAL(18, 2),
-     cliente          INTEGER,
-     canal_venta      INTEGER,
-     medio_pago       INTEGER,
-     PRIMARY KEY(nro_venta)
-  )
-
-CREATE TABLE sqlnt.MEDIO_PAGO_VENTA
-  (
-     id          INTEGER,
-     descripcion VARCHAR(255),
-     PRIMARY KEY(id)
-  )
-
-CREATE TABLE sqlnt.DESCUENTO_MEDIO_PAGO_VENTA
-  (
-     medio_pago        INTEGER,
-     importe_descuento DECIMAL(18, 2),
-     PRIMARY KEY(medio_pago)
-  )
-
-CREATE TABLE sqlnt.DESCUENTO_VENTA
-  (
-     tipo_descuento    INTEGER,
-     venta             DECIMAL(19, 0),
-     importe_descuento DECIMAL(18, 2),
-     PRIMARY KEY(tipo_descuento, venta)
-  )
-
-CREATE TABLE sqlnt.TIPO_DESCUENTO_VENTA
-  (
-     id       INTEGER,
-     concepto NVARCHAR(255),
-     PRIMARY KEY(id)
-  )
-
-CREATE TABLE sqlnt.PROVEEDOR
-  (
-     prove_cuit          NVARCHAR(50),
-     prove_razon_social  NVARCHAR(50),
-     prove_domicilio     NVARCHAR(50),
-     prove_localidad     NVARCHAR(255),
-     prove_mail          NVARCHAR(50),
-     prove_codigo_postal DECIMAL(18, 0),
-     PRIMARY KEY(prove_cuit)
-  )
-
-CREATE TABLE sqlnt.MEDIO_PAGO_COMPRA
-  (
-     id          INTEGER,
-     descripcion VARCHAR(255),
-     PRIMARY KEY(id)
-  )
-
-CREATE TABLE sqlnt.COMPRA
-  (
-     nro_compra   DECIMAL(19, 0),
-     fecha_compra DATE,
-     proveedor    NVARCHAR(50),
-     compra_total DECIMAL(18, 2),
-     medio_pago   INTEGER,
-     PRIMARY KEY(nro_compra)
-  )
-
-CREATE TABLE sqlnt.DESCUENTO_COMPRA
-  (
-     tipo_descuento DECIMAL(19,0),
-     compra             DECIMAL(19, 0),
-     importe_valor      DECIMAL(18, 2),
-     PRIMARY KEY(tipo_descuento,compra)
-  )
-
-CREATE TABLE sqlnt.TIPO_DESCUENTO_COMPRA
-  (
-     id       DECIMAL(19,0)
-     concepto NVARCHAR(255),
-     PRIMARY KEY(id)
-  )
-
-CREATE TABLE sqlnt.CLIENTE
-  (
-  	 id 		   INTEGER,
-     nombre        NVARCHAR(255),
-     apellido      NVARCHAR(255),
-     nro_documento DECIMAL(18, 0),
-     fecha_nac     DATE,
-     mail          NVARCHAR(255),
-     localidad     NVARCHAR(255),
-     codigo_postal DECIMAL(18, 0),
-     direccion     NVARCHAR(255),
-     telefono      DECIMAL(18, 0),
-     PRIMARY KEY(id)
-  )
-
-CREATE TABLE sqlnt.CODIGO_POSTAL
-  (
-     codigo_postal DECIMAL(18, 0),
-     provincia     INTEGER,
-     PRIMARY KEY(codigo_postal)
-  )
-
-CREATE TABLE sqlnt.DISPONIBILIDAD_ENVIO
-  (
-     localidad              INTEGER,
-     medio_envio_disponible INTEGER,
-     precio 				DECIMAL(18,2),
-     PRIMARY KEY(localidad,medio_envio_disponible)
-  )
-  
-CREATE TABLE sqlnt.LOCALIDAD
-(
-	id				INTEGER,
-	descripcion		NVARCHAR(255),
-	codigo_postal	DECIMAL(18,0),
-	PRIMARY KEY(id)
-)
-
-CREATE TABLE sqlnt.MEDIO_ENVIO
-  (
-     id          INTEGER,
-     descripcion NVARCHAR(255),
-     PRIMARY KEY(id)
-  )
-
-CREATE TABLE sqlnt.PROVINCIA
-  (
-     id          INTEGER,
-     descripcion NVARCHAR(255),
-     PRIMARY KEY(id)
-  ) 
-  
-ALTER TABLE sqlnt.PRODUCTO
-ADD FOREIGN KEY (categoria) REFERENCES sqlnt.CATEGORIA(id)
-
-ALTER TABLE sqlnt.PRODUCTO
-ADD FOREIGN KEY (material) REFERENCES sqlnt.MATERIAL(id)
-
-ALTER TABLE sqlnt.PRODUCTO
-ADD FOREIGN KEY (marca) REFERENCES sqlnt.MARCA(id)
-
-
-ALTER TABLE sqlnt.PRODUCTO_VARIANTE 
-ADD FOREIGN KEY (producto) REFERENCES sqlnt.PRODUCTO(codigo)
-
-ALTER TABLE sqlnt.PRODUCTO_VARIANTE 
-ADD FOREIGN KEY (variante) REFERENCES sqlnt.VARIANTE(id)
-
-ALTER TABLE sqlnt.VARIANTE
-ADD FOREIGN KEY (tipo_variante) REFERENCES sqlnt.TIPO_VARIANTE(id)
-
-ALTER TABLE sqlnt.PRODUCTO_VARIANTE_COMPRA
-ADD FOREIGN KEY (compra) REFERENCES sqlnt.COMPRA(nro_compra)
-
-ALTER TABLE sqlnt.PRODUCTO_VARIANTE_COMPRA
-ADD FOREIGN KEY (producto_variante) REFERENCES sqlnt.PRODUCTO_VARIANTE(codigo)
-
-ALTER TABLE sqlnt.PRODUCTO_VARIANTE_VENTA
-ADD FOREIGN KEY (venta) REFERENCES sqlnt.VENTA(nro_venta)
-
-ALTER TABLE sqlnt.PRODUCTO_VARIANTE_VENTA
-ADD FOREIGN KEY (producto_variante) REFERENCES sqlnt.PRODUCTO_VARIANTE(codigo)
-
-ALTER TABLE sqlnt.VENTA 
-ADD FOREIGN KEY (cliente) REFERENCES sqlnt.CLIENTE(id)
-
-ALTER TABLE sqlnt.VENTA 
-ADD FOREIGN KEY (canal_venta) REFERENCES sqlnt.CANAL_VENTA(id)
-
-ALTER TABLE sqlnt.VENTA 
-ADD FOREIGN KEY (medio_pago) REFERENCES sqlnt.MEDIO_PAGO_VENTA(id)
-
-ALTER TABLE sqlnt.DESCUENTO_VENTA  
-ADD FOREIGN KEY (tipo_descuento) REFERENCES sqlnt.TIPO_DESCUENTO_VENTA(id)
-
-ALTER TABLE sqlnt.DESCUENTO_VENTA  
-ADD FOREIGN KEY (venta) REFERENCES sqlnt.VENTA(nro_venta)
-
-ALTER TABLE sqlnt.DESCUENTO_COMPRA  
-ADD FOREIGN KEY (tipo_descuento) REFERENCES sqlnt.TIPO_DESCUENTO_COMPRA(id)
-
-ALTER TABLE sqlnt.DESCUENTO_COMPRA  
-ADD FOREIGN KEY (compra) REFERENCES sqlnt.COMPRA(nro_compra)
-
-ALTER TABLE sqlnt.COMPRA  
-ADD FOREIGN KEY (proveedor) REFERENCES sqlnt.PROVEEDOR(prove_cuit)
-
-ALTER TABLE sqlnt.COMPRA  
-ADD FOREIGN KEY (medio_pago) REFERENCES sqlnt.MEDIO_PAGO_COMPRA(id)
-
-ALTER TABLE sqlnt.PROVEEDOR  
-ADD FOREIGN KEY (prove_codigo_postal) REFERENCES sqlnt.CODIGO_POSTAL(codigo_postal)
-
-ALTER TABLE sqlnt.CUPON  
-ADD FOREIGN KEY (tipo_cupon) REFERENCES sqlnt.TIPO_CUPON(id)
-
-ALTER TABLE sqlnt.CUPON_VENTA 
-ADD FOREIGN KEY (cupon) REFERENCES sqlnt.CUPON(codigo)
-
-ALTER TABLE sqlnt.CUPON_VENTA 
-ADD FOREIGN KEY (venta) REFERENCES sqlnt.VENTA(nro_venta)
-
-ALTER TABLE sqlnt.CLIENTE
-ADD FOREIGN KEY (codigo_postal) REFERENCES sqlnt.CODIGO_POSTAL(codigo_postal)
-
-ALTER TABLE sqlnt.ENVIO 
-ADD FOREIGN KEY (medio_envio) REFERENCES sqlnt.MEDIO_ENVIO(id)
-
-ALTER TABLE sqlnt.ENVIO 
-ADD FOREIGN KEY (codigo_postal) REFERENCES sqlnt.CODIGO_POSTAL(codigo_postal)
-
-ALTER TABLE sqlnt.ENVIO 
-ADD FOREIGN KEY (venta) REFERENCES sqlnt.VENTA(nro_venta)
-
-ALTER TABLE sqlnt.CODIGO_POSTAL  
-ADD FOREIGN KEY (provincia) REFERENCES sqlnt.PROVINCIA(id)
-
-ALTER TABLE sqlnt.LOCALIDAD
-ADD FOREIGN KEY (codigo_postal) REFERENCES sqlnt.CODIGO_POSTAL(codigo_postal)
-
-ALTER TABLE sqlnt.DISPONIBILIDAD_ENVIO
-ADD FOREIGN KEY (medio_envio_disponible) REFERENCES sqlnt.MEDIO_ENVIO(id)
-
-ALTER TABLE sqlnt.DISPONIBILIDAD_ENVIO 
-ADD FOREIGN KEY (localidad) REFERENCES sqlnt.LOCALIDAD(id)
-
-ALTER TABLE sqlnt.DESCUENTO_MEDIO_PAGO_VENTA
-ADD FOREIGN KEY (medio_pago) REFERENCES sqlnt.MEDIO_PAGO_VENTA(id)
-
-/*---------------------SEQUENCE---------------------*/
+/*---------------------SEQUENCES---------------------*/
 
 CREATE SEQUENCE sqlnt.contador_categorias
     AS INT
     START WITH 1
     INCREMENT BY 1;
+GO
+
+CREATE SEQUENCE sqlnt.contador_tipo_variante
+    AS INT
+    START WITH 1
+    INCREMENT BY 1;
+GO
+
+CREATE SEQUENCE sqlnt.contador_tipo_descuento_venta
+    AS INT
+    START WITH 1
+    INCREMENT BY 1;
+GO
+
+CREATE SEQUENCE sqlnt.contador_medio_pago_venta
+    AS INT
+    START WITH 1
+    INCREMENT BY 1;
+GO
+
+CREATE SEQUENCE sqlnt.contador_medio_envio
+    AS INT
+    START WITH 1
+    INCREMENT BY 1;
+GO
+
+CREATE SEQUENCE sqlnt.contador_tipo_cupon
+    AS INT
+    START WITH 1
+    INCREMENT BY 1;
+GO
+
+CREATE SEQUENCE sqlnt.seq_canal_venta
+	AS INT
+	START WITH 1
+	INCREMENT BY 1
+	MINVALUE 1
+	MAXVALUE 2147483647;
+GO
+
+CREATE SEQUENCE sqlnt.seq_provincia
+	AS INT
+	START WITH 1
+	INCREMENT BY 1
+	MINVALUE 1
+	MAXVALUE 2147483647;
+GO
+
+CREATE SEQUENCE sqlnt.seq_medio_pago_compra
+	AS INT
+	START WITH 1
+	INCREMENT BY 1
+	MINVALUE 1
+	MAXVALUE 2147483647;
+GO
+
+CREATE SEQUENCE sqlnt.seq_cliente
+	AS INT
+	START WITH 1
+	INCREMENT BY 1
+	MINVALUE 1
+	MAXVALUE 2147483647;
+GO
+
+CREATE SEQUENCE sqlnt.seq_producto_material
+	AS INT
+	START WITH 1
+	INCREMENT BY 1
+	MINVALUE 1
+	MAXVALUE 2147483647;
+GO
+
+CREATE SEQUENCE sqlnt.seq_producto_marca
+	AS INT
+	START WITH 1
+	INCREMENT BY 1
+	MINVALUE 1
+	MAXVALUE 2147483647;
+GO
+
+CREATE SEQUENCE sqlnt.seq_variante
+	AS INT
+	START WITH 1
+	INCREMENT BY 1
+	MINVALUE 1
+	MAXVALUE 2147483647;
+GO
+
+CREATE SEQUENCE sqlnt.seq_localidad
+	AS INT
+	START WITH 1
+	INCREMENT BY 1
+	MINVALUE 1
+	MAXVALUE 2147483647;
+GO
+
+/*-------------------END SEQUENCES---------------------*/
+
+/*----------------PROCEDURES CREATION---------------------*/
+
+CREATE PROCEDURE sqlnt.crear_tablas
+AS
+	CREATE TABLE sqlnt.CATEGORIA
+	(
+		id      INTEGER,
+		detalle NVARCHAR(255),
+		PRIMARY KEY (id)
+	)
+
+	CREATE TABLE sqlnt.PRODUCTO
+	(
+		codigo        nvarchar(50),
+		nombre		   nvarchar(50),
+		descripcion   nvarchar(50),
+		material      integer,
+		marca         integer,
+		categoria INTEGER,
+		PRIMARY KEY(codigo)
+	)
+	
+	CREATE TABLE sqlnt.MARCA
+	(
+		id			integer,
+		detalle		nvarchar(255),
+		PRIMARY KEY(id)
+	)
+
+	CREATE TABLE sqlnt.MATERIAL
+	(
+		id			integer,
+		detalle		nvarchar(255),
+		PRIMARY KEY(id)
+	)
 
 
-/*---------------------INSERTS---------------------*/
+	CREATE TABLE sqlnt.PRODUCTO_VARIANTE
+	(
+		codigo          NVARCHAR(50),
+		producto        nvarchar(50),
+		variante        INTEGER,
+		precio_unitario DECIMAL(18, 2),
+		PRIMARY KEY(codigo)
+	)
+
+	CREATE TABLE sqlnt.VARIANTE
+	(
+		id            INTEGER,
+		tipo_variante INTEGER,
+		detalle       NVARCHAR(255),
+		PRIMARY KEY(id),
+	)
+
+	CREATE TABLE sqlnt.TIPO_VARIANTE
+	(
+		id      INTEGER,
+		detalle NVARCHAR(255),
+		PRIMARY KEY(id)
+	)
+
+	CREATE TABLE sqlnt.PRODUCTO_VARIANTE_VENTA
+	(
+		venta             DECIMAL(19, 0),
+		producto_variante NVARCHAR(50),
+		cantidad          DECIMAL(18, 0),
+		precio            DECIMAL(18, 2),
+		PRIMARY KEY(venta, producto_variante)
+	)
+
+	CREATE TABLE sqlnt.CANAL_VENTA
+	(
+		id             INTEGER,
+		descripcion    VARCHAR(255),
+		costo_asociado DECIMAL(18, 2),
+		PRIMARY KEY(id)
+	)
+
+	CREATE TABLE sqlnt.ENVIO
+	(
+		venta			 DECIMAL(19,0),
+		medio_envio     INTEGER,
+		domicilio_envio NVARCHAR(255),
+		codigo_postal   DECIMAL(18, 0),
+		costo           DECIMAL(18, 2),
+		PRIMARY KEY(venta)
+	)
+
+	CREATE TABLE sqlnt.PRODUCTO_VARIANTE_COMPRA
+	(
+		compra            DECIMAL(19, 0),
+		producto_variante NVARCHAR(50),
+		cantidad_producto DECIMAL(18, 0),
+		precio_unitario   DECIMAL(18, 2),
+		PRIMARY KEY(compra, producto_variante)
+	)
+
+	CREATE TABLE sqlnt.CUPON
+	(
+		codigo      NVARCHAR(255),
+		tipo_cupon  INTEGER,
+		valor       DECIMAL(18, 2),
+		fecha_desde DATE,
+		fecha_hasta DATE,
+		PRIMARY KEY(codigo)
+	)
+
+	CREATE TABLE sqlnt.TIPO_CUPON
+	(
+		id          INTEGER,
+		descripcion NVARCHAR(50),
+		PRIMARY KEY(id)
+	)
+
+	CREATE TABLE sqlnt.CUPON_VENTA
+	(
+		cupon NVARCHAR(255) NOT NULL,
+		venta DECIMAL(19, 0) NOT NULL,
+		PRIMARY KEY(cupon,venta)
+	)
+
+	CREATE TABLE sqlnt.VENTA
+	(
+		nro_venta        DECIMAL(19, 0),
+		fecha_venta      DATE,
+		total            DECIMAL(18, 2),
+		total_descuentos DECIMAL(18, 2),
+		cliente          INTEGER,
+		canal_venta      INTEGER,
+		medio_pago       INTEGER,
+		PRIMARY KEY(nro_venta)
+	)
+
+	CREATE TABLE sqlnt.MEDIO_PAGO_VENTA
+	(
+		id          INTEGER,
+		descripcion VARCHAR(255),
+		PRIMARY KEY(id)
+	)
+
+	CREATE TABLE sqlnt.DESCUENTO_MEDIO_PAGO_VENTA
+	(
+		medio_pago        INTEGER,
+		importe_descuento DECIMAL(18, 2),
+		PRIMARY KEY(medio_pago)
+	)
+
+	CREATE TABLE sqlnt.DESCUENTO_VENTA
+	(
+		tipo_descuento    INTEGER,
+		venta             DECIMAL(19, 0),
+		importe_descuento DECIMAL(18, 2),
+		PRIMARY KEY(tipo_descuento, venta)
+	)
+
+	CREATE TABLE sqlnt.TIPO_DESCUENTO_VENTA
+	(
+		id       INTEGER,
+		concepto NVARCHAR(255),
+		PRIMARY KEY(id)
+	)
+
+	CREATE TABLE sqlnt.PROVEEDOR
+	(
+		prove_cuit          NVARCHAR(50),
+		prove_razon_social  NVARCHAR(50),
+		prove_domicilio     NVARCHAR(50),
+		prove_localidad     INTEGER,
+		prove_mail          NVARCHAR(50),
+		prove_codigo_postal DECIMAL(18, 0),
+		PRIMARY KEY(prove_cuit)
+	)
+
+	CREATE TABLE sqlnt.MEDIO_PAGO_COMPRA
+	(
+		id          INTEGER,
+		descripcion VARCHAR(255),
+		PRIMARY KEY(id)
+	)
+
+	CREATE TABLE sqlnt.COMPRA
+	(
+		nro_compra   DECIMAL(19, 0),
+		fecha_compra DATE,
+		proveedor    NVARCHAR(50),
+		compra_total DECIMAL(18, 2),
+		medio_pago   INTEGER,
+		PRIMARY KEY(nro_compra)
+	)
+
+	CREATE TABLE sqlnt.DESCUENTO_COMPRA
+	(
+		tipo_descuento DECIMAL(19,0),
+		compra             DECIMAL(19, 0),
+		importe_valor      DECIMAL(18, 2),
+		PRIMARY KEY(tipo_descuento,compra)
+	)
+
+	CREATE TABLE sqlnt.TIPO_DESCUENTO_COMPRA
+	(
+		id       DECIMAL(19,0),
+		concepto NVARCHAR(255),
+		PRIMARY KEY(id)
+	)
+
+	CREATE TABLE sqlnt.CLIENTE
+	(
+		id 		   INTEGER,
+		nombre        NVARCHAR(255),
+		apellido      NVARCHAR(255),
+		nro_documento DECIMAL(18, 0),
+		fecha_nac     DATE,
+		mail          NVARCHAR(255),
+		localidad     NVARCHAR(255),
+		codigo_postal DECIMAL(18, 0),
+		direccion     NVARCHAR(255),
+		telefono      DECIMAL(18, 0),
+		PRIMARY KEY(id)
+	)
+
+	CREATE TABLE sqlnt.CODIGO_POSTAL
+	(
+		codigo_postal DECIMAL(18, 0),
+		provincia     INTEGER,
+		PRIMARY KEY(codigo_postal)
+	)
+
+	CREATE TABLE sqlnt.DISPONIBILIDAD_ENVIO
+	(
+		localidad              INTEGER,
+		medio_envio_disponible INTEGER,
+		precio 				DECIMAL(18,2),
+		PRIMARY KEY(localidad,medio_envio_disponible)
+	)
+	
+	CREATE TABLE sqlnt.LOCALIDAD
+	(
+		id				INTEGER,
+		descripcion		NVARCHAR(255),
+		codigo_postal	DECIMAL(18,0),
+		PRIMARY KEY(id)
+	)
+
+	CREATE TABLE sqlnt.MEDIO_ENVIO
+	(
+		id          INTEGER,
+		descripcion NVARCHAR(255),
+		PRIMARY KEY(id)
+	)
+
+	CREATE TABLE sqlnt.PROVINCIA
+	(
+		id          INTEGER,
+		descripcion NVARCHAR(255),
+		PRIMARY KEY(id)
+	) 
+  
+GO
+
+CREATE PROCEDURE sqlnt.crear_constraints
+AS
+	ALTER TABLE sqlnt.PRODUCTO
+	ADD FOREIGN KEY (categoria) REFERENCES sqlnt.CATEGORIA(id)
+
+	ALTER TABLE sqlnt.PRODUCTO
+	ADD FOREIGN KEY (material) REFERENCES sqlnt.MATERIAL(id)
+
+	ALTER TABLE sqlnt.PRODUCTO
+	ADD FOREIGN KEY (marca) REFERENCES sqlnt.MARCA(id)
+
+
+	ALTER TABLE sqlnt.PRODUCTO_VARIANTE 
+	ADD FOREIGN KEY (producto) REFERENCES sqlnt.PRODUCTO(codigo)
+
+	ALTER TABLE sqlnt.PRODUCTO_VARIANTE 
+	ADD FOREIGN KEY (variante) REFERENCES sqlnt.VARIANTE(id)
+
+	ALTER TABLE sqlnt.VARIANTE
+	ADD FOREIGN KEY (tipo_variante) REFERENCES sqlnt.TIPO_VARIANTE(id)
+
+	ALTER TABLE sqlnt.PRODUCTO_VARIANTE_COMPRA
+	ADD FOREIGN KEY (compra) REFERENCES sqlnt.COMPRA(nro_compra)
+
+	ALTER TABLE sqlnt.PRODUCTO_VARIANTE_COMPRA
+	ADD FOREIGN KEY (producto_variante) REFERENCES sqlnt.PRODUCTO_VARIANTE(codigo)
+
+	ALTER TABLE sqlnt.PRODUCTO_VARIANTE_VENTA
+	ADD FOREIGN KEY (venta) REFERENCES sqlnt.VENTA(nro_venta)
+
+	ALTER TABLE sqlnt.PRODUCTO_VARIANTE_VENTA
+	ADD FOREIGN KEY (producto_variante) REFERENCES sqlnt.PRODUCTO_VARIANTE(codigo)
+
+	ALTER TABLE sqlnt.VENTA 
+	ADD FOREIGN KEY (cliente) REFERENCES sqlnt.CLIENTE(id)
+
+	ALTER TABLE sqlnt.VENTA 
+	ADD FOREIGN KEY (canal_venta) REFERENCES sqlnt.CANAL_VENTA(id)
+
+	ALTER TABLE sqlnt.VENTA 
+	ADD FOREIGN KEY (medio_pago) REFERENCES sqlnt.MEDIO_PAGO_VENTA(id)
+
+	ALTER TABLE sqlnt.DESCUENTO_VENTA  
+	ADD FOREIGN KEY (tipo_descuento) REFERENCES sqlnt.TIPO_DESCUENTO_VENTA(id)
+
+	ALTER TABLE sqlnt.DESCUENTO_VENTA  
+	ADD FOREIGN KEY (venta) REFERENCES sqlnt.VENTA(nro_venta)
+
+	ALTER TABLE sqlnt.DESCUENTO_COMPRA  
+	ADD FOREIGN KEY (tipo_descuento) REFERENCES sqlnt.TIPO_DESCUENTO_COMPRA(id)
+
+	ALTER TABLE sqlnt.DESCUENTO_COMPRA  
+	ADD FOREIGN KEY (compra) REFERENCES sqlnt.COMPRA(nro_compra)
+
+	ALTER TABLE sqlnt.COMPRA  
+	ADD FOREIGN KEY (proveedor) REFERENCES sqlnt.PROVEEDOR(prove_cuit)
+
+	ALTER TABLE sqlnt.COMPRA  
+	ADD FOREIGN KEY (medio_pago) REFERENCES sqlnt.MEDIO_PAGO_COMPRA(id)
+
+	ALTER TABLE sqlnt.PROVEEDOR  
+	ADD FOREIGN KEY (prove_codigo_postal) REFERENCES sqlnt.CODIGO_POSTAL(codigo_postal)
+
+	ALTER TABLE sqlnt.PROVEEDOR  
+	ADD FOREIGN KEY (prove_localidad) REFERENCES sqlnt.LOCALIDAD(id)
+
+	ALTER TABLE sqlnt.CUPON  
+	ADD FOREIGN KEY (tipo_cupon) REFERENCES sqlnt.TIPO_CUPON(id)
+
+	ALTER TABLE sqlnt.CUPON_VENTA 
+	ADD FOREIGN KEY (cupon) REFERENCES sqlnt.CUPON(codigo)
+
+	ALTER TABLE sqlnt.CUPON_VENTA 
+	ADD FOREIGN KEY (venta) REFERENCES sqlnt.VENTA(nro_venta)
+
+	ALTER TABLE sqlnt.CLIENTE
+	ADD FOREIGN KEY (codigo_postal) REFERENCES sqlnt.CODIGO_POSTAL(codigo_postal)
+
+	ALTER TABLE sqlnt.ENVIO 
+	ADD FOREIGN KEY (medio_envio) REFERENCES sqlnt.MEDIO_ENVIO(id)
+
+	ALTER TABLE sqlnt.ENVIO 
+	ADD FOREIGN KEY (codigo_postal) REFERENCES sqlnt.CODIGO_POSTAL(codigo_postal)
+
+	ALTER TABLE sqlnt.ENVIO 
+	ADD FOREIGN KEY (venta) REFERENCES sqlnt.VENTA(nro_venta)
+
+	ALTER TABLE sqlnt.CODIGO_POSTAL  
+	ADD FOREIGN KEY (provincia) REFERENCES sqlnt.PROVINCIA(id)
+
+	ALTER TABLE sqlnt.LOCALIDAD
+	ADD FOREIGN KEY (codigo_postal) REFERENCES sqlnt.CODIGO_POSTAL(codigo_postal)
+
+	ALTER TABLE sqlnt.DISPONIBILIDAD_ENVIO
+	ADD FOREIGN KEY (medio_envio_disponible) REFERENCES sqlnt.MEDIO_ENVIO(id)
+
+	ALTER TABLE sqlnt.DISPONIBILIDAD_ENVIO 
+	ADD FOREIGN KEY (localidad) REFERENCES sqlnt.LOCALIDAD(id)
+
+	ALTER TABLE sqlnt.DESCUENTO_MEDIO_PAGO_VENTA
+	ADD FOREIGN KEY (medio_pago) REFERENCES sqlnt.MEDIO_PAGO_VENTA(id)
+GO
 
 CREATE PROCEDURE sqlnt.insertar_categorias
 AS
@@ -370,68 +476,64 @@ SELECT NEXT VALUE FOR sqlnt.contador_categorias, PRODUCTO_CATEGORIA
 FROM GD2C2022.gd_esquema.Maestra
 WHERE PRODUCTO_CATEGORIA IS NOT NULL
 GROUP BY PRODUCTO_CATEGORIA
+GO
 
+CREATE PROCEDURE sqlnt.insertar_tipo_variante
+AS
+INSERT INTO sqlnt.TIPO_VARIANTE(id, detalle)
+SELECT NEXT VALUE FOR sqlnt.contador_tipo_variante, PRODUCTO_TIPO_VARIANTE
+FROM GD2C2022.gd_esquema.Maestra
+WHERE PRODUCTO_TIPO_VARIANTE IS NOT NULL
+GROUP BY PRODUCTO_TIPO_VARIANTE;
+GO
 
-/*--------------------------------------------------*/
+CREATE PROCEDURE sqlnt.insertar_tipo_descuento_venta
+AS
+INSERT INTO sqlnt.TIPO_DESCUENTO_VENTA(id, concepto)
+SELECT NEXT VALUE FOR sqlnt.contador_tipo_descuento_venta, VENTA_DESCUENTO_CONCEPTO
+FROM GD2C2022.gd_esquema.Maestra
+WHERE VENTA_DESCUENTO_CONCEPTO IS NOT NULL
+GROUP BY VENTA_DESCUENTO_CONCEPTO;
+GO
 
-/*----------------------Facu section----------------------------*/
+CREATE PROCEDURE sqlnt.insertar_medio_envio
+AS
+INSERT INTO sqlnt.MEDIO_ENVIO(id, descripcion)
+SELECT NEXT VALUE FOR sqlnt.contador_medio_envio, VENTA_MEDIO_ENVIO
+FROM GD2C2022.gd_esquema.Maestra
+WHERE VENTA_MEDIO_ENVIO IS NOT NULL
+GROUP BY VENTA_MEDIO_ENVIO;
+GO
 
-CREATE SEQUENCE sqlnt.seq_canal_venta
-	AS INT
-	START WITH 1
-	INCREMENT BY 1
-	MINVALUE 1
-	MAXVALUE 2147483647;
+CREATE PROCEDURE sqlnt.insertar_medio_pago_venta
+AS
+INSERT INTO sqlnt.MEDIO_PAGO_VENTA (id, descripcion)
+SELECT NEXT VALUE FOR sqlnt.contador_medio_pago_venta, VENTA_MEDIO_PAGO
+FROM GD2C2022.gd_esquema.Maestra
+WHERE VENTA_MEDIO_PAGO IS NOT NULL
+GROUP BY VENTA_MEDIO_PAGO;
+GO
 
-CREATE SEQUENCE sqlnt.seq_provincia
-	AS INT
-	START WITH 1
-	INCREMENT BY 1
-	MINVALUE 1
-	MAXVALUE 2147483647;
+CREATE PROCEDURE sqlnt.insertar_tipo_cupon
+AS
+INSERT INTO sqlnt.TIPO_CUPON (id, descripcion)
+SELECT NEXT VALUE FOR sqlnt.contador_tipo_cupon, VENTA_CUPON_TIPO
+FROM GD2C2022.gd_esquema.Maestra
+WHERE VENTA_CUPON_TIPO IS NOT NULL
+GROUP BY VENTA_CUPON_TIPO;
+GO
 
-CREATE SEQUENCE sqlnt.seq_medio_pago_compra
-	AS INT
-	START WITH 1
-	INCREMENT BY 1
-	MINVALUE 1
-	MAXVALUE 2147483647;
-
-CREATE SEQUENCE sqlnt.seq_cliente
-	AS INT
-	START WITH 1
-	INCREMENT BY 1
-	MINVALUE 1
-	MAXVALUE 2147483647;
-
-
-CREATE SEQUENCE sqlnt.seq_producto_material
-	AS INT
-	START WITH 1
-	INCREMENT BY 1
-	MINVALUE 1
-	MAXVALUE 2147483647;
-
-CREATE SEQUENCE sqlnt.seq_producto_marca
-	AS INT
-	START WITH 1
-	INCREMENT BY 1
-	MINVALUE 1
-	MAXVALUE 2147483647;
-
-CREATE SEQUENCE sqlnt.seq_variante
-	AS INT
-	START WITH 1
-	INCREMENT BY 1
-	MINVALUE 1
-	MAXVALUE 2147483647;
-
-CREATE SEQUENCE sqlnt.seq_localidad
-	AS INT
-	START WITH 1
-	INCREMENT BY 1
-	MINVALUE 1
-	MAXVALUE 2147483647;
+CREATE PROCEDURE sqlnt.insertar_marcas
+AS
+	INSERT INTO sqlnt.MARCA 
+	(id,detalle)
+	SELECT 
+		NEXT VALUE FOR sqlnt.seq_producto_marca,
+		m.PRODUCTO_MARCA
+	FROM gd_esquema.Maestra m
+	WHERE m.PRODUCTO_MARCA IS NOT NULL
+	GROUP BY m.PRODUCTO_MARCA 
+GO
 
 CREATE PROCEDURE sqlnt.insertar_canales_vta
 AS
@@ -446,6 +548,7 @@ AS
 			m.VENTA_CANAL IS NOT NULL AND 
 			m.VENTA_CANAL_COSTO IS NOT NULL
 		GROUP BY m.VENTA_CANAL,m.VENTA_CANAL_COSTO 
+GO
 
 CREATE PROCEDURE sqlnt.insertar_provincias
 AS
@@ -456,6 +559,7 @@ AS
 			CONCAT(m.CLIENTE_PROVINCIA,m.PROVEEDOR_PROVINCIA)
 		FROM gd_esquema.Maestra m
 		GROUP BY CONCAT(m.CLIENTE_PROVINCIA,m.PROVEEDOR_PROVINCIA)
+GO
 
 CREATE PROCEDURE sqlnt.insertar_medio_pago_compra
 AS 
@@ -467,25 +571,7 @@ AS
 	FROM gd_esquema.Maestra m 
 WHERE m.COMPRA_MEDIO_PAGO IS NOT NULL
 GROUP BY m.COMPRA_MEDIO_PAGO 
-
-CREATE PROCEDURE sqlnt.insertar_producto_variante_venta
-AS
-	INSERT INTO sqlnt.PRODUCTO_VARIANTE_VENTA
-	(venta,producto_variante,cantidad,precio)
-	SELECT 
-		m.VENTA_CODIGO,
-		m.PRODUCTO_VARIANTE_CODIGO,
-		m.VENTA_PRODUCTO_CANTIDAD,
-		m.VENTA_PRODUCTO_PRECIO 
-	FROM gd_esquema.Maestra m
-	WHERE 
-		m.VENTA_CODIGO IS NOT NULL
-		AND
-		m.PRODUCTO_VARIANTE_CODIGO IS NOT NULL
-	GROUP BY 	m.VENTA_CODIGO,
-		m.PRODUCTO_VARIANTE_CODIGO,
-		m.VENTA_PRODUCTO_CANTIDAD,
-		m.VENTA_PRODUCTO_PRECIO 
+GO
 
 CREATE PROCEDURE sqlnt.insertar_codigo_postal
 AS 
@@ -500,7 +586,8 @@ AS
 		FROM gd_esquema.Maestra 
 	) T
 	GROUP BY CODIGO_POSTAL,PROVINCIA
-	
+GO
+
 CREATE PROCEDURE sqlnt.insertar_cliente
 AS 
 	INSERT INTO sqlnt.CLIENTE 
@@ -551,6 +638,7 @@ AS
 		CODIGO_POSTAL,
 		DIRECCION,
 		TELEFONO
+GO
 
 CREATE PROCEDURE sqlnt.insertar_venta
 AS 
@@ -592,6 +680,7 @@ AS
 		CLIENTE,
 		CANAL,
 		MEDIO_PAGO
+GO
 
 CREATE PROCEDURE sqlnt.insertar_envio
 AS
@@ -626,7 +715,8 @@ AS
 		DIRECCION,
 		CODIGO_POSTAL,
 		COSTO_ENVIO
-		
+GO
+
 CREATE PROCEDURE sqlnt.insertar_cupon
 AS
 	INSERT INTO sqlnt.CUPON 
@@ -654,6 +744,7 @@ AS
 		VALOR,
 		FECHA_DESDE,
 		FECHA_HASTA
+GO
 
 CREATE PROCEDURE sqlnt.insertar_cupon_venta
 AS
@@ -670,7 +761,8 @@ AS
 	GROUP BY 
 		CUPON,
 		VENTA
-		
+GO
+
 CREATE PROCEDURE sqlnt.insertar_proveedores
 AS
 	INSERT INTO sqlnt.PROVEEDOR
@@ -688,7 +780,7 @@ AS
 			m.PROVEEDOR_CUIT AS CUIT,
 			m.PROVEEDOR_RAZON_SOCIAL AS RAZON_SOCIAL,
 			m.PROVEEDOR_DOMICILIO AS DOMICILIO,
-			m.PROVEEDOR_LOCALIDAD AS LOCALIDAD,
+			(SELECT lo.id FROM sqlnt.LOCALIDAD lo WHERE lo.descripcion = m.PROVEEDOR_LOCALIDAD AND lo.codigo_postal = m.PROVEEDOR_CODIGO_POSTAL) AS LOCALIDAD,
 			m.PROVEEDOR_MAIL AS MAIL,
 			(SELECT cp.codigo_postal FROM sqlnt.CODIGO_POSTAL cp WHERE cp.codigo_postal = m.PROVEEDOR_CODIGO_POSTAL) AS CODIGO_POSTAL
 		FROM gd_esquema.Maestra m 
@@ -701,7 +793,8 @@ AS
 		LOCALIDAD,
 		MAIL,
 		CODIGO_POSTAL
-		
+GO
+
 CREATE PROCEDURE sqlnt.insertar_compras
 AS
 	INSERT INTO sqlnt.COMPRA 
@@ -722,7 +815,8 @@ AS
 		PROVEEDOR,
 		TOTAL,
 		MEDIO_PAGO
-		
+GO
+
 CREATE PROCEDURE sqlnt.insertar_materiales
 AS
 	INSERT INTO sqlnt.MATERIAL 
@@ -733,18 +827,8 @@ AS
 	FROM gd_esquema.Maestra m
 	WHERE m.PRODUCTO_MATERIAL IS NOT NULL
 	GROUP BY m.PRODUCTO_MATERIAL 
+GO
 
-CREATE PROCEDURE sqlnt.insertar_marcas
-AS
-	INSERT INTO sqlnt.MARCA 
-	(id,detalle)
-	SELECT 
-		NEXT VALUE FOR sqlnt.seq_producto_marca,
-		m.PRODUCTO_MARCA
-	FROM gd_esquema.Maestra m
-	WHERE m.PRODUCTO_MARCA IS NOT NULL
-	GROUP BY m.PRODUCTO_MARCA 
-	
 CREATE PROCEDURE sqlnt.insertar_productos
 AS 
 INSERT INTO sqlnt.PRODUCTO 
@@ -768,7 +852,8 @@ GROUP BY
 	MATERIAL,
 	MARCA,
 	CATEGORIA
-	
+GO
+
 CREATE PROCEDURE sqlnt.insertar_variante
 AS 
 	INSERT INTO sqlnt.VARIANTE 
@@ -788,6 +873,7 @@ AS
 	GROUP BY 
 		DETALLE,
 		TIPO_VARIANTE
+GO
 
 CREATE PROCEDURE sqlnt.insertar_producto_variante
 AS 
@@ -811,7 +897,8 @@ AS
 		CODIGO,
 		PRODUCTO,
 		VARIANTE
-		
+GO
+
 CREATE PROCEDURE sqlnt.insertar_producto_variante_venta
 AS
 	INSERT INTO sqlnt.PRODUCTO_VARIANTE_VENTA 
@@ -831,7 +918,7 @@ AS
 	WHERE m.PRODUCTO_VARIANTE_CODIGO IS NOT NULL AND m.VENTA_CODIGO IS NOT NULL
 	) T
 	GROUP BY VENTA,PRODUCTO_VARIANTE,PRECIO
-	
+GO	
 	
 CREATE PROCEDURE sqlnt.insertar_producto_variante_compra
 AS
@@ -853,7 +940,8 @@ AS
 		WHERE m.COMPRA_NUMERO IS NOT NULL AND m.PRODUCTO_VARIANTE_CODIGO IS NOT NULL
 	) T
 	GROUP BY COMPRA,PRODUCTO_VARIANTE,PRECIO
-	
+GO
+
 CREATE PROCEDURE sqlnt.insertar_descuento_venta
 AS
 	INSERT INTO sqlnt.DESCUENTO_VENTA 
@@ -867,6 +955,7 @@ AS
 	WHERE m.VENTA_DESCUENTO_CONCEPTO IS NOT NULL
 	) T
 	GROUP BY TIPO_DESCUENTO,VENTA,IMPORTE_DESCUENTO
+GO
 
 CREATE PROCEDURE sqlnt.insertar_tipo_descuento_compra
 AS
@@ -876,6 +965,7 @@ AS
 	WHERE m.DESCUENTO_COMPRA_CODIGO IS NOT NULL
 	GROUP BY
 		m.DESCUENTO_COMPRA_CODIGO 
+GO
 
 CREATE PROCEDURE sqlnt.insertar_descuento_compra
 AS
@@ -890,6 +980,7 @@ AS
 		WHERE m.DESCUENTO_COMPRA_CODIGO IS NOT NULL
 	) T
 	GROUP BY TIPO_DESCUENTO,COMPRA, IMPORTE_DESCUENTO
+GO
 
 CREATE PROCEDURE sqlnt.insertar_descuento_medio_pago_venta
 AS
@@ -907,6 +998,7 @@ AS
 	) T 
 	WHERE MEDIO_PAGO IS NOT NULL
 	GROUP BY MEDIO_PAGO
+GO
 
 CREATE PROCEDURE sqlnt.insertar_localidad
 AS
@@ -924,7 +1016,7 @@ AS
 		WHERE m.CLIENTE_LOCALIDAD IS NOT NULL OR m.PROVEEDOR_LOCALIDAD IS NOT NULL
 	) T
 	GROUP BY DESCRIPCION,CODIGO_POSTAL
-
+GO
 	
 CREATE PROCEDURE sqlnt.insertar_disponibilidad_envio
 AS 
@@ -939,32 +1031,44 @@ AS
 		WHERE m.CLIENTE_LOCALIDAD IS NOT NULL AND m.VENTA_MEDIO_ENVIO is not null
 	) T
 	GROUP BY LOCALIDAD,MEDIO_ENVIO,PRECIO
-	
-/*----------------------Facu section----------------------------*/
+GO
 
+/*---------------------END PROCEDURES CREATION----------------------------*/
+
+/*---------------------PROCEDURE EXECUTION----------------------------*/
+
+EXEC sqlnt.crear_tablas
+EXEC sqlnt.crear_constraints
 EXEC sqlnt.insertar_categorias
 EXEC sqlnt.insertar_materiales
 EXEC sqlnt.insertar_marcas
 EXEC sqlnt.insertar_productos
-EXEC sqlnt.insertar_canales_vta
-EXEC sqlnt.insertar_provincias
-EXEC sqlnt.insertar_medio_pago_compra
-EXEC sqlnt.insertar_codigo_postal
-EXEC sqlnt.insertar_cliente
-EXEC sqlnt.insertar_venta
-EXEC sqlnt.insertar_envio
-EXEC sqlnt.insertar_cupon
-EXEC sqlnt.insertar_cupon_venta
-EXEC sqlnt.insertar_proveedores
-EXEC sqlnt.insertar_compras
+EXEC sqlnt.insertar_tipo_variante
 EXEC sqlnt.insertar_variante
 EXEC sqlnt.insertar_producto_variante
+EXEC sqlnt.insertar_canales_vta
+EXEC sqlnt.insertar_provincias
+EXEC sqlnt.insertar_codigo_postal
+EXEC sqlnt.insertar_cliente
+EXEC sqlnt.insertar_medio_pago_venta
+EXEC sqlnt.insertar_venta
 EXEC sqlnt.insertar_producto_variante_venta
-EXEC sqlnt.insertar_producto_variante_compra
-EXEC sqlnt.insertar_descuento_venta
-EXEC sqlnt.insertar_tipo_descuento_compra
-EXEC sqlnt.insertar_descuento_compra
-EXEC sqlnt.insertar_descuento_medio_pago_venta
+EXEC sqlnt.insertar_medio_envio
+EXEC sqlnt.insertar_envio
 EXEC sqlnt.insertar_localidad
 EXEC sqlnt.insertar_disponibilidad_envio
+EXEC sqlnt.insertar_tipo_cupon
+EXEC sqlnt.insertar_cupon
+EXEC sqlnt.insertar_cupon_venta
+EXEC sqlnt.insertar_descuento_medio_pago_venta
+EXEC sqlnt.insertar_tipo_descuento_venta
+EXEC sqlnt.insertar_descuento_venta
+EXEC sqlnt.insertar_tipo_descuento_compra
+EXEC sqlnt.insertar_medio_pago_compra
+EXEC sqlnt.insertar_proveedores
+EXEC sqlnt.insertar_compras
+EXEC sqlnt.insertar_descuento_compra
+EXEC sqlnt.insertar_producto_variante_compra
+
+
 
